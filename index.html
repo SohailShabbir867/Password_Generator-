@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Password Generator</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #f1f1f1;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        padding: 30px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        background: linear-gradient(to right, #4cc9f0, #4361ee);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #a0a0c0;
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      .ethics-note {
+        background-color: rgba(67, 97, 238, 0.15);
+        border-left: 4px solid #4361ee;
+        padding: 15px;
+        margin: 20px auto;
+        border-radius: 0 8px 8px 0;
+        max-width: 800px;
+      }
+
+      .ethics-note i {
+        color: #4361ee;
+        margin-right: 10px;
+      }
+
+      .content-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      @media (max-width: 900px) {
+        .content-wrapper {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .input-section,
+      .output-section {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #4cc9f0;
+        display: flex;
+        align-items: center;
+      }
+
+      .section-title i {
+        margin-right: 10px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #b0b0d0;
+        font-weight: 500;
+      }
+
+      textarea,
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 12px 15px;
+        background-color: rgba(20, 20, 35, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #f1f1f1;
+        font-size: 1rem;
+        transition: border 0.3s, box-shadow 0.3s;
+      }
+
+      textarea:focus,
+      input[type="text"]:focus,
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .hint {
+        font-size: 0.85rem;
+        color: #8080a0;
+        margin-top: 5px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .generate-btn {
+        background: linear-gradient(to right, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .generate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .generate-btn i {
+        margin-right: 10px;
+      }
+
+      .limit-control {
+        display: flex;
+        align-items: center;
+        background-color: rgba(20, 20, 35, 0.8);
+        padding: 10px 15px;
+        border-radius: 8px;
+      }
+
+      .limit-control input {
+        width: 100px;
+        margin-left: 10px;
+        text-align: center;
+      }
+
+      .output-area {
+        background-color: rgba(20, 20, 35, 0.8);
+        border-radius: 8px;
+        padding: 15px;
+        min-height: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 20px;
+      }
+
+      .password-item {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        word-break: break-all;
+      }
+
+      .password-item:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .stat-box {
+        background-color: rgba(67, 97, 238, 0.1);
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #4cc9f0;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #a0a0c0;
+      }
+
+      .save-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .save-btn {
+        background: linear-gradient(to right, #2ecc71, #27ae60);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+      }
+
+      .save-btn i {
+        margin-right: 10px;
+      }
+
+      .file-name {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      footer {
+        text-align: center;
+        padding: 30px 0;
+        color: #8080a0;
+        font-size: 0.9rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 30px;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        color: #4cc9f0;
+      }
+
+      .loading i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .fa-spinner {
+        animation: spin 1s linear infinite;
+      }
+
+      .character-length {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .range-container {
+        flex: 1;
+        margin-right: 20px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 8px;
+        -webkit-appearance: none;
+        background: rgba(20, 20, 35, 0.8);
+        border-radius: 4px;
+        outline: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #4361ee;
+        cursor: pointer;
+      }
+
+      .length-value {
+        font-weight: bold;
+        color: #4cc9f0;
+        font-size: 1.2rem;
+        min-width: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <nav style="background: rgba(0,0,0,0.5); padding: 15px; text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+        <a href="index.html" style="color: #4cc9f0; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #4361ee;">Names/Password Generate</a>
+        <span style="color: #666;">|</span>
+        <a href="wordlist.html" style="color: #b0b0d0; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; transition: color 0.3s;">Number/Symbol</a>
+      </nav>
+      <header>
+        <h1><i class="fas fa-key"></i> Advanced Password Generator</h1>
+        <p class="subtitle">
+          Create strong, customized passwords using names, numbers, and symbols.
+          This tool is for ethical security testing and educational purposes
+          only.
+        </p>
+
+        <div class="ethics-note">
+          <i class="fas fa-shield-alt"></i>
+          <strong>Ethical Use Agreement:</strong> This tool is intended for
+          legitimate security testing, password recovery of your own accounts,
+          and educational purposes only. Never use it to compromise systems or
+          accounts you don't own or have explicit permission to test.
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <section class="input-section">
+          <h2 class="section-title">
+            <i class="fas fa-edit"></i> Input Parameters
+          </h2>
+
+          <div class="input-group">
+            <label for="names"
+              ><i class="fas fa-user"></i> Names (one per line)</label
+            >
+            <textarea
+              id="names"
+              placeholder="Enter names like: john, alice, smith, doe"
+            >
+Ali
+Ahmed
+Muhammad
+Hassan
+Hussain
+Bilal
+Omar
+Usman
+Farhan
+Rizwan
+Saad
+Zain
+Haris
+Abdullah
+Hamza
+Asad
+Faisal
+Kamran
+Shahid
+Javed
+Tariq
+Nasir
+Salman
+Imran
+Waseem
+Ayesha
+Fatima
+Mariam
+Zainab
+Sana
+Hina
+Aisha
+Rabia
+Sara
+Aliya
+Nida
+Maham
+Sadia
+Amina
+Kiran
+Shazia
+Samina
+Nadia
+Saima
+Bushra
+Farah
+Anum
+Sobia
+Gul</textarea
+            >
+            <div class="hint">
+              These will be used as base words for password generation
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="numbers"
+              ><i class="fas fa-hashtag"></i> Numbers (one per line)</label
+            >
+            <textarea
+              id="numbers"
+              placeholder="Enter numbers like: 123, 2023, 99, 007"
+            >
+123
+456
+789
+2023
+2024
+007
+99
+100
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+50
+100
+500
+1000
+2000
+3000</textarea
+            >
+            <div class="hint">
+              These numbers will be added to password combinations
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="symbols"
+              ><i class="fas fa-asterisk"></i> Symbols (one per line or
+              combined)</label
+            >
+            <input
+              type="text"
+              id="symbols"
+              value="! @ # $ % & * ? ~ ^ - _ + ="
+            />
+            <div class="hint">
+              Symbols will be inserted at different positions in passwords
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="passwordLength">Password Length Range</label>
+            <div class="character-length">
+              <div class="range-container">
+                <input
+                  type="range"
+                  id="passwordLength"
+                  min="8"
+                  max="15"
+                  value="12"
+                />
+              </div>
+              <div class="length-value" id="lengthValue">12</div>
+            </div>
+            <div class="hint">
+              Passwords will be generated within this length range (8-15
+              characters)
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="limit-control">
+              <label for="limit">Generate up to:</label>
+              <input
+                type="number"
+                id="limit"
+                min="1"
+                max="1000000"
+                value="1000"
+              />
+              <span style="margin-left: 5px">passwords</span>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">
+              <i class="fas fa-bolt"></i> Generate Passwords
+            </button>
+          </div>
+        </section>
+
+        <section class="output-section">
+          <h2 class="section-title">
+            <i class="fas fa-lock"></i> Generated Passwords
+          </h2>
+
+          <div class="stats">
+            <div class="stat-box">
+              <div class="stat-value" id="totalPasswords">0</div>
+              <div class="stat-label">Passwords</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value" id="avgLength">0</div>
+              <div class="stat-label">Avg Length</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value" id="genTime">0</div>
+              <div class="stat-label">Time (ms)</div>
+            </div>
+          </div>
+
+          <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Generating passwords...</p>
+          </div>
+
+          <div class="output-area" id="outputArea">
+            <div class="password-item">
+              Generated passwords will appear here...
+            </div>
+          </div>
+
+          <div class="save-section">
+            <div class="file-name">
+              <label for="fileName"
+                ><i class="fas fa-file"></i> File Name</label
+              >
+              <input
+                type="text"
+                id="fileName"
+                value="generated_passwords.txt"
+              />
+            </div>
+
+            <button class="save-btn" id="saveBtn">
+              <i class="fas fa-download"></i> Save to File
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <footer>
+        <p>
+          © 2023 Advanced Password Generator | For Ethical Security Testing &
+          Educational Use Only
+        </p>
+        <p>
+          This tool generates passwords based on user-provided inputs. Always
+          follow responsible disclosure practices.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM elements
+        const namesInput = document.getElementById("names");
+        const numbersInput = document.getElementById("numbers");
+        const symbolsInput = document.getElementById("symbols");
+        const passwordLength = document.getElementById("passwordLength");
+        const lengthValue = document.getElementById("lengthValue");
+        const limitInput = document.getElementById("limit");
+        const generateBtn = document.getElementById("generateBtn");
+        const outputArea = document.getElementById("outputArea");
+        const loading = document.getElementById("loading");
+        const totalPasswords = document.getElementById("totalPasswords");
+        const avgLength = document.getElementById("avgLength");
+        const genTime = document.getElementById("genTime");
+        const fileName = document.getElementById("fileName");
+        const saveBtn = document.getElementById("saveBtn");
+
+        // Update length value display
+        passwordLength.addEventListener("input", function () {
+          lengthValue.textContent = this.value;
+        });
+
+        // Generate passwords when button is clicked
+        generateBtn.addEventListener("click", generatePasswords);
+
+        // Save passwords to file
+        saveBtn.addEventListener("click", saveToFile);
+
+        // Password generation function
+        function generatePasswords() {
+          // Show loading indicator
+          loading.style.display = "block";
+          outputArea.innerHTML = "";
+
+          // Get input values
+          const names = namesInput.value
+            .trim()
+            .split("\n")
+            .map((name) => name.trim())
+            .filter((name) => name.length > 0);
+          const numbers = numbersInput.value
+            .trim()
+            .split("\n")
+            .map((num) => num.trim())
+            .filter((num) => num.length > 0);
+          const symbols = symbolsInput.value
+            .trim()
+            .split(" ")
+            .filter((symbol) => symbol.length > 0);
+          const maxLength = parseInt(passwordLength.value);
+          const limit = parseInt(limitInput.value);
+
+          // Validate inputs
+          if (names.length === 0 || numbers.length === 0) {
+            alert("Please enter at least one name and one number.");
+            loading.style.display = "none";
+            return;
+          }
+
+          if (limit > 1000000) {
+            alert(
+              "Maximum limit is 1,000,000 passwords for performance reasons."
+            );
+            loading.style.display = "none";
+            return;
+          }
+
+          // Start timing
+          const startTime = performance.now();
+
+          // Generate passwords
+          const passwords = new Set();
+          let attempts = 0;
+          const maxAttempts = limit * 10; // Prevent infinite loop
+
+          while (passwords.size < limit && attempts < maxAttempts) {
+            attempts++;
+
+            // Select random name and number
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomNumber =
+              numbers[Math.floor(Math.random() * numbers.length)];
+
+            // Generate password with different combinations
+            let password = generatePasswordCombination(
+              randomName,
+              randomNumber,
+              symbols,
+              maxLength
+            );
+
+            // Only add if password length is between 8 and maxLength
+            if (password.length >= 8 && password.length <= maxLength) {
+              passwords.add(password);
+            }
+
+            // Update UI every 1000 passwords for better UX
+            if (passwords.size % 1000 === 0 || passwords.size === limit) {
+              updateUI(passwords, startTime);
+            }
+          }
+
+          // Final update
+          updateUI(passwords, startTime);
+          loading.style.display = "none";
+        }
+
+        // Generate a single password with variations
+        function generatePasswordCombination(name, number, symbols, maxLength) {
+          // Different combination strategies
+          const strategies = [
+            // Name + Number + Symbol
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              return name + number + symbol;
+            },
+            // Number + Name + Symbol
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              return number + name + symbol;
+            },
+            // Symbol + Name + Number
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              return symbol + name + number;
+            },
+            // Name + Symbol + Number
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              return name + symbol + number;
+            },
+            // Mixed case variations
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              const mixedName =
+                Math.random() > 0.5 ? name.toUpperCase() : name.toLowerCase();
+              return mixedName + number + symbol;
+            },
+            // Reverse name
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              const reversedName = name.split("").reverse().join("");
+              return reversedName + number + symbol;
+            },
+            // Partial name
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              const partialName = name.substring(
+                0,
+                Math.max(3, name.length - 2)
+              );
+              return partialName + number + symbol;
+            },
+            // Multiple symbols
+            () => {
+              if (symbols.length < 2) return name + number;
+              const symbol1 =
+                symbols[Math.floor(Math.random() * symbols.length)];
+              const symbol2 =
+                symbols[Math.floor(Math.random() * symbols.length)];
+              return name + symbol1 + number + symbol2;
+            },
+            // Capitalized variations
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              const capitalizedName =
+                name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+              return capitalizedName + number + symbol;
+            },
+            // Number between name parts
+            () => {
+              const symbol =
+                symbols.length > 0
+                  ? symbols[Math.floor(Math.random() * symbols.length)]
+                  : "";
+              if (name.length > 3) {
+                const midPoint = Math.floor(name.length / 2);
+                return (
+                  name.substring(0, midPoint) +
+                  number +
+                  name.substring(midPoint) +
+                  symbol
+                );
+              }
+              return name + number + symbol;
+            },
+          ];
+
+          // Select a random strategy
+          const strategy =
+            strategies[Math.floor(Math.random() * strategies.length)];
+          let password = strategy();
+
+          // Truncate if too long
+          if (password.length > maxLength) {
+            password = password.substring(0, maxLength);
+          }
+
+          // Ensure we have at least 8 characters
+          if (password.length < 8) {
+            // Add padding if needed
+            const padding = "12345678".substring(0, 8 - password.length);
+            password += padding;
+          }
+
+          return password;
+        }
+
+        // Update UI with generated passwords
+        function updateUI(passwords, startTime) {
+          // Convert Set to Array for display
+          const passwordArray = Array.from(passwords);
+
+          // Update stats
+          totalPasswords.textContent = passwords.size.toLocaleString();
+
+          // Calculate average length
+          const totalLength = passwordArray.reduce(
+            (sum, pwd) => sum + pwd.length,
+            0
+          );
+          avgLength.textContent = (totalLength / passwords.size).toFixed(1);
+
+          // Calculate generation time
+          const endTime = performance.now();
+          genTime.textContent = (endTime - startTime).toFixed(0);
+
+          // Display passwords (limit display to 100 for performance)
+          outputArea.innerHTML = "";
+          const displayCount = Math.min(passwordArray.length, 100);
+
+          for (let i = 0; i < displayCount; i++) {
+            const passwordItem = document.createElement("div");
+            passwordItem.className = "password-item";
+            // FIXED: Show only the password without the numbering prefix
+            passwordItem.textContent = passwordArray[i];
+            outputArea.appendChild(passwordItem);
+          }
+
+          if (passwordArray.length > 100) {
+            const moreItem = document.createElement("div");
+            moreItem.className = "password-item";
+            moreItem.style.color = "#4cc9f0";
+            moreItem.textContent = `... and ${(
+              passwordArray.length - 100
+            ).toLocaleString()} more passwords (saved to file only)`;
+            outputArea.appendChild(moreItem);
+          }
+        }
+
+        // Save passwords to file
+        function saveToFile() {
+          // Get passwords from output area (we need to regenerate or store them)
+          // For simplicity, we'll regenerate with same inputs
+          const names = namesInput.value
+            .trim()
+            .split("\n")
+            .map((name) => name.trim())
+            .filter((name) => name.length > 0);
+          const numbers = numbersInput.value
+            .trim()
+            .split("\n")
+            .map((num) => num.trim())
+            .filter((num) => num.length > 0);
+          const symbols = symbolsInput.value
+            .trim()
+            .split(" ")
+            .filter((symbol) => symbol.length > 0);
+          const maxLength = parseInt(passwordLength.value);
+          const limit = parseInt(limitInput.value);
+
+          if (names.length === 0 || numbers.length === 0) {
+            alert("Please generate passwords first before saving.");
+            return;
+          }
+
+          // Regenerate passwords for saving (same algorithm as before)
+          const passwords = new Set();
+          let attempts = 0;
+          const maxAttempts = limit * 10;
+
+          while (passwords.size < limit && attempts < maxAttempts) {
+            attempts++;
+
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomNumber =
+              numbers[Math.floor(Math.random() * numbers.length)];
+
+            let password = generatePasswordCombination(
+              randomName,
+              randomNumber,
+              symbols,
+              maxLength
+            );
+
+            if (password.length >= 8 && password.length <= maxLength) {
+              passwords.add(password);
+            }
+          }
+
+          // Convert to text
+          const passwordArray = Array.from(passwords);
+          let fileContent = `Advanced Password Generator - Generated Passwords\n`;
+          fileContent += `Generated on: ${new Date().toLocaleString()}\n`;
+          fileContent += `Parameters: ${names.length} names, ${numbers.length} numbers, ${symbols.length} symbols\n`;
+          fileContent += `Password length: 8-${maxLength} characters\n`;
+          fileContent += `Total passwords: ${passwords.size}\n`;
+          fileContent += `\n=== PASSWORDS ===\n\n`;
+
+          // FIXED: Save just the passwords without numbering in the file
+          passwordArray.forEach((password) => {
+            fileContent += `${password}\n`;
+          });
+
+          // Create and download file
+          const blob = new Blob([fileContent], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName.value || "generated_passwords.txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          // Show confirmation
+          alert(
+            `Successfully saved ${passwords.size.toLocaleString()} passwords to ${
+              a.download
+            }`
+          );
+        }
+
+        // Generate some example passwords on load
+        generateBtn.click();
+      });
+    </script>
+  </body>
+</html>

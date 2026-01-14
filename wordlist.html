@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wordlist Generator - Ethical Hacking Learning</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Consolas", "Monaco", monospace;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px;
+      background: rgba(25, 25, 35, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #444;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #00b4d8;
+    }
+
+    h1 {
+      color: #00b4d8;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+    }
+
+    .subtitle {
+      color: #90e0ef;
+      font-size: 1.1em;
+    }
+
+    .warning {
+      background: rgba(255, 193, 7, 0.1);
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .warning h3 {
+      color: #ffc107;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      background: rgba(40, 40, 50, 0.7);
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #90e0ef;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(30, 30, 40, 0.8);
+      border: 2px solid #444;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #00b4d8;
+      box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 200px;
+    }
+
+    #generateBtn {
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      color: white;
+    }
+
+    #generateBtn:hover {
+      background: linear-gradient(135deg, #0093b6, #005a8c);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+    }
+
+    #stopBtn {
+      background: linear-gradient(135deg, #f94144, #c1121f);
+      color: white;
+    }
+
+    #stopBtn:hover {
+      background: linear-gradient(135deg, #d90429, #9d0208);
+      transform: translateY(-2px);
+    }
+
+    #saveBtn {
+      background: linear-gradient(135deg, #4cc9f0, #4361ee);
+      color: white;
+    }
+
+    #saveBtn:hover {
+      background: linear-gradient(135deg, #38b2e6, #3a56d4);
+      transform: translateY(-2px);
+    }
+
+    .progress-container {
+      margin-top: 30px;
+      background: rgba(40, 40, 50, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 30px;
+      background: rgba(30, 30, 40, 0.8);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00b4d8, #4cc9f0);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 15px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      background: rgba(30, 30, 40, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4cc9f0;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #90e0ef;
+      margin-top: 5px;
+    }
+
+    .output-info {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(40, 40, 50, 0.7);
+      border-radius: 10px;
+    }
+
+    #status {
+      color: #4cc9f0;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    #fileInfo {
+      color: #90e0ef;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #444;
+      color: #90e0ef;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      button {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav
+      style="background: rgba(0,0,0,0.5); padding: 15px; text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
+      <a href="index.html"
+        style="color: #90e0ef; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; transition: color 0.3s;">Names/Password
+        Generate</a>
+      <span style="color: #666;">|</span>
+      <a href="wordlist.html"
+        style="color: #00b4d8; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #00b4d8;">Number/Symbol</a>
+    </nav>
+    <header>
+      <h1>🔒 Wordlist Generator</h1>
+      <p class="subtitle">For Ethical Hacking & Security Learning</p>
+    </header>
+
+    <div class="warning">
+      <h3>⚠️ ETHICAL USE ONLY ⚠️</h3>
+      <p>
+        This tool is for educational purposes only. Use only on systems you
+        own or have explicit permission to test.
+      </p>
+    </div>
+
+    <div class="controls">
+      <div class="input-group">
+        <label for="count">Number of Passwords (200,000+ recommended):</label>
+        <input type="number" id="count" min="1000" max="10000000" value="200000" />
+      </div>
+
+      <div class="input-group">
+        <label for="minLength">Minimum Length (8-10):</label>
+        <select id="minLength">
+          <option value="8">8 characters</option>
+          <option value="9">9 characters</option>
+          <option value="10">10 characters</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="maxLength">Maximum Length (8-10):</label>
+        <select id="maxLength">
+          <option value="8">8 characters</option>
+          <option value="9">9 characters</option>
+          <option value="10" selected>10 characters</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button id="generateBtn">🚀 Generate Wordlist</button>
+        <button id="stopBtn" style="display: none">⏹️ Stop Generation</button>
+        <button id="saveBtn" style="display: none">💾 Save to File</button>
+      </div>
+    </div>
+
+    <div class="progress-container" style="display: none">
+      <h3>Generation Progress</h3>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-value" id="generatedCount">0</div>
+          <div class="stat-label">Passwords Generated</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="timeElapsed">0s</div>
+          <div class="stat-label">Time Elapsed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="fileSize">0 MB</div>
+          <div class="stat-label">Estimated Size</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="speed">0/sec</div>
+          <div class="stat-label">Generation Speed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-info" style="display: none">
+      <h3 id="status">Ready to generate...</h3>
+      <p id="fileInfo">Wordlist will appear here when generated.</p>
+    </div>
+
+    <footer>
+      <p>
+        For educational purposes only | Created for Ethical Hacking Learning
+      </p>
+      <p>Generated passwords: 8-10 characters with at least one @, $, or #</p>
+    </footer>
+  </div>
+
+  <script>
+    class WordlistGenerator {
+      constructor() {
+        this.isGenerating = false;
+        this.wordlist = [];
+        this.specialChars = ["@", "$", "#"];
+        this.digits = "0123456789";
+        this.startTime = null;
+        this.interval = null;
+      }
+
+      generatePassword(minLength, maxLength) {
+        // Random length between min and max
+        const length =
+          Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+
+        // Ensure at least one special character
+        const numSpecial = Math.floor(Math.random() * 2) + 1; // 1-2 special chars
+        const numDigits = length - numSpecial;
+
+        // Generate digits
+        let digits = "";
+        for (let i = 0; i < numDigits; i++) {
+          digits +=
+            this.digits[Math.floor(Math.random() * this.digits.length)];
+        }
+
+        // Generate special characters
+        let specials = "";
+        for (let i = 0; i < numSpecial; i++) {
+          specials +=
+            this.specialChars[
+            Math.floor(Math.random() * this.specialChars.length)
+            ];
+        }
+
+        // Combine and shuffle
+        let password = digits + specials;
+        password = this.shuffleString(password);
+
+        return password;
+      }
+
+      shuffleString(str) {
+        const arr = str.split("");
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr.join("");
+      }
+
+      startGeneration(totalCount, minLength, maxLength, updateCallback) {
+        this.isGenerating = true;
+        this.wordlist = [];
+        this.startTime = Date.now();
+
+        // Generate in batches to keep UI responsive
+        const batchSize = 10000;
+        let generated = 0;
+
+        const generateBatch = () => {
+          if (!this.isGenerating || generated >= totalCount) {
+            this.stopGeneration();
+            updateCallback({
+              generated: generated,
+              total: totalCount,
+              completed: true,
+              timeElapsed: (Date.now() - this.startTime) / 1000,
+            });
+            return;
+          }
+
+          const batchCount = Math.min(batchSize, totalCount - generated);
+          for (let i = 0; i < batchCount; i++) {
+            this.wordlist.push(this.generatePassword(minLength, maxLength));
+          }
+
+          generated += batchCount;
+
+          updateCallback({
+            generated: generated,
+            total: totalCount,
+            completed: false,
+            timeElapsed: (Date.now() - this.startTime) / 1000,
+          });
+
+          // Schedule next batch
+          setTimeout(generateBatch, 0);
+        };
+
+        generateBatch();
+      }
+
+      stopGeneration() {
+        this.isGenerating = false;
+        if (this.interval) {
+          clearInterval(this.interval);
+          this.interval = null;
+        }
+      }
+
+      saveToFile() {
+        if (this.wordlist.length === 0) return null;
+
+        const content = this.wordlist.join("\n");
+        const blob = new Blob([content], { type: "text/plain" });
+        return blob;
+      }
+    }
+
+    // DOM Elements
+    const generateBtn = document.getElementById("generateBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const progressContainer = document.querySelector(".progress-container");
+    const outputInfo = document.querySelector(".output-info");
+    const progressFill = document.getElementById("progressFill");
+    const generatedCount = document.getElementById("generatedCount");
+    const timeElapsed = document.getElementById("timeElapsed");
+    const fileSize = document.getElementById("fileSize");
+    const speed = document.getElementById("speed");
+    const status = document.getElementById("status");
+    const fileInfo = document.getElementById("fileInfo");
+
+    let generator = new WordlistGenerator();
+    let lastUpdateTime = null;
+    let lastGenerated = 0;
+
+    // Update statistics
+    function updateStats(data) {
+      const progress = (data.generated / data.total) * 100;
+      progressFill.style.width = `${progress}%`;
+      generatedCount.textContent = data.generated.toLocaleString();
+
+      const elapsed = data.timeElapsed.toFixed(1);
+      timeElapsed.textContent = `${elapsed}s`;
+
+      // Calculate speed
+      const now = Date.now();
+      if (lastUpdateTime) {
+        const timeDiff = (now - lastUpdateTime) / 1000;
+        const generatedDiff = data.generated - lastGenerated;
+        if (timeDiff > 0) {
+          const currentSpeed = Math.round(generatedDiff / timeDiff);
+          speed.textContent = `${currentSpeed.toLocaleString()}/sec`;
+        }
+      }
+      lastUpdateTime = now;
+      lastGenerated = data.generated;
+
+      // Estimate file size (approx 11 bytes per password: 10 chars + newline)
+      const estimatedSize = (data.generated * 11) / (1024 * 1024);
+      fileSize.textContent = `${estimatedSize.toFixed(2)} MB`;
+
+      if (data.completed) {
+        status.textContent = "✅ Generation Complete!";
+        status.style.color = "#4ade80";
+        fileInfo.textContent = `Successfully generated ${data.generated.toLocaleString()} passwords. Ready to save.`;
+        generateBtn.style.display = "none";
+        stopBtn.style.display = "none";
+        saveBtn.style.display = "block";
+      } else {
+        status.textContent = `🔄 Generating... ${progress.toFixed(1)}%`;
+        status.style.color = "#4cc9f0";
+        fileInfo.textContent = `Generating passwords: ${data.generated.toLocaleString()} of ${data.total.toLocaleString()}`;
+      }
+    }
+
+    // Start generation
+    generateBtn.addEventListener("click", () => {
+      const totalCount = parseInt(document.getElementById("count").value);
+      const minLength = parseInt(document.getElementById("minLength").value);
+      const maxLength = parseInt(document.getElementById("maxLength").value);
+
+      if (isNaN(totalCount) || totalCount < 1000) {
+        alert("Please enter at least 1000 passwords");
+        return;
+      }
+
+      if (minLength > maxLength) {
+        alert("Minimum length cannot be greater than maximum length");
+        return;
+      }
+
+      // Show progress container
+      progressContainer.style.display = "block";
+      outputInfo.style.display = "block";
+
+      // Update button states
+      generateBtn.style.display = "none";
+      stopBtn.style.display = "block";
+      saveBtn.style.display = "none";
+
+      // Reset stats
+      lastUpdateTime = null;
+      lastGenerated = 0;
+
+      // Start generation
+      generator.startGeneration(
+        totalCount,
+        minLength,
+        maxLength,
+        updateStats
+      );
+    });
+
+    // Stop generation
+    stopBtn.addEventListener("click", () => {
+      generator.stopGeneration();
+      generateBtn.style.display = "block";
+      stopBtn.style.display = "none";
+      saveBtn.style.display = "block";
+      status.textContent = "⏹️ Generation Stopped";
+      status.style.color = "#f94144";
+    });
+
+    // Save to file
+    saveBtn.addEventListener("click", () => {
+      const blob = generator.saveToFile();
+      if (!blob) {
+        alert("No wordlist generated yet!");
+        return;
+      }
+
+      const totalCount = parseInt(document.getElementById("count").value);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `wordlist_${totalCount}_${timestamp}.txt`;
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+
+      // Trigger download
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        fileInfo.innerHTML = `✅ Wordlist saved as <strong>${filename}</strong><br>
+                                     Contains ${generator.wordlist.length.toLocaleString()} passwords<br>
+                                     Size: ${(
+            blob.size /
+            (1024 * 1024)
+          ).toFixed(2)} MB`;
+      }, 100);
+    });
+
+    // Initialize with sample values
+    document.getElementById("count").addEventListener("input", function () {
+      const value = parseInt(this.value);
+      if (value > 1000000) {
+        fileInfo.textContent = `Note: Generating ${value.toLocaleString()} passwords may take a while and create a large file (~${(
+          (value * 11) /
+          (1024 * 1024)
+        ).toFixed(1)} MB)`;
+        outputInfo.style.display = "block";
+      }
+    });
+  </script>
+</body>
+
+</html>

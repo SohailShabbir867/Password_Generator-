@@ -150,7 +150,7 @@
     const checkSlice = lower.length > 300 ? lower.slice(0, 300) : lower;
 
     for (const word of COMMON_DICTIONARY_WORDS) {
-      if (word.length >= 4 && checkSlice.includes(word)) {
+      if (word.length >= 5 && checkSlice.includes(word)) {
         hasDict = true;
         dictPenalty = Math.max(dictPenalty, 25);
         break;

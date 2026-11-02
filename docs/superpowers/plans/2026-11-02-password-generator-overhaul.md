@@ -89,15 +89,15 @@ graph TD
 **Interfaces:**
 - Produces: `TargetedGenerator.generate({ words, numbers, symbols, minLength, maxLength, limit, leetTransforms, casing, affixes })` -> `Set<string>`
 
-- [ ] **Step 1: Write test suite for `targeted-gen`**
+- [x] **Step 1: Write test suite for `targeted-gen`**
   Create `tests/targeted-gen.test.cjs` checking permutation rules, leetspeak transformations, casing options, and length limits.
-- [ ] **Step 2: Run test suite to verify failure**
+- [x] **Step 2: Run test suite to verify failure**
   Run `node tests/targeted-gen.test.cjs` and verify failure.
-- [ ] **Step 3: Implement `js/targeted-gen.js`**
+- [x] **Step 3: Implement `js/targeted-gen.js`**
   Implement combinatorial and permutation generation algorithms with leetspeak dictionary substitution, case variations, affixes, and deduplication.
-- [ ] **Step 4: Run test suite to verify success**
+- [x] **Step 4: Run test suite to verify success**
   Run `node tests/targeted-gen.test.cjs` and verify all tests pass.
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
   Commit: `feat(targeted): implement targeted wordlist and pattern generator with leetspeak`.
 
 ---

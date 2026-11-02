@@ -60,7 +60,7 @@
    * @returns {number} Integer in [0, maxExclusive)
    */
   function getRandomInt(maxExclusive, cryptoObj = getCryptoObj()) {
-    if (typeof maxExclusive !== 'number' || isNaN(maxExclusive) || maxExclusive <= 1) return 0;
+    if (typeof maxExclusive !== 'number' || isNaN(maxExclusive) || !Number.isFinite(maxExclusive) || maxExclusive <= 1) return 0;
     maxExclusive = Math.floor(maxExclusive);
     if (maxExclusive <= 1) return 0;
 

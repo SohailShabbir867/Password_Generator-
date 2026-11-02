@@ -1,975 +1,759 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Password Generator</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>CyberPass Suite - Advanced Password & Wordlist Matrix</title>
+  <meta name="description" content="Next-generation cryptographic password generator, targeted wordlist permutation matrix, Diceware passphrase builder, and real-time entropy analyzer for cybersecurity professionals." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 
-      body {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        color: #f1f1f1;
-        min-height: 100vh;
-        padding: 20px;
-      }
+  <!-- FontAwesome 6 Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+  <!-- Cyber Design System Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/cyber-theme.css" />
+</head>
+<body>
+  <!-- Ambient Cyber Background Grid -->
+  <div class="cyber-bg"></div>
 
-      header {
-        text-align: center;
-        padding: 30px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 30px;
-      }
-
-      h1 {
-        font-size: 2.8rem;
-        background: linear-gradient(to right, #4cc9f0, #4361ee);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        margin-bottom: 10px;
-      }
-
-      .subtitle {
-        color: #a0a0c0;
-        font-size: 1.1rem;
-        max-width: 800px;
-        margin: 0 auto;
-        line-height: 1.6;
-      }
-
-      .ethics-note {
-        background-color: rgba(67, 97, 238, 0.15);
-        border-left: 4px solid #4361ee;
-        padding: 15px;
-        margin: 20px auto;
-        border-radius: 0 8px 8px 0;
-        max-width: 800px;
-      }
-
-      .ethics-note i {
-        color: #4361ee;
-        margin-right: 10px;
-      }
-
-      .content-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        margin-bottom: 40px;
-      }
-
-      @media (max-width: 900px) {
-        .content-wrapper {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .input-section,
-      .output-section {
-        background: rgba(30, 30, 46, 0.8);
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .section-title {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-        color: #4cc9f0;
-        display: flex;
-        align-items: center;
-      }
-
-      .section-title i {
-        margin-right: 10px;
-      }
-
-      .input-group {
-        margin-bottom: 20px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 8px;
-        color: #b0b0d0;
-        font-weight: 500;
-      }
-
-      textarea,
-      input[type="text"],
-      input[type="number"] {
-        width: 100%;
-        padding: 12px 15px;
-        background-color: rgba(20, 20, 35, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        color: #f1f1f1;
-        font-size: 1rem;
-        transition: border 0.3s, box-shadow 0.3s;
-      }
-
-      textarea:focus,
-      input[type="text"]:focus,
-      input[type="number"]:focus {
-        outline: none;
-        border-color: #4361ee;
-        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-      }
-
-      textarea {
-        min-height: 100px;
-        resize: vertical;
-      }
-
-      .hint {
-        font-size: 0.85rem;
-        color: #8080a0;
-        margin-top: 5px;
-      }
-
-      .controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 25px;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-
-      .generate-btn {
-        background: linear-gradient(to right, #4361ee, #3a0ca3);
-        color: white;
-        border: none;
-        padding: 14px 28px;
-        font-size: 1.1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-
-      .generate-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
-      }
-
-      .generate-btn i {
-        margin-right: 10px;
-      }
-
-      .limit-control {
-        display: flex;
-        align-items: center;
-        background-color: rgba(20, 20, 35, 0.8);
-        padding: 10px 15px;
-        border-radius: 8px;
-      }
-
-      .limit-control input {
-        width: 100px;
-        margin-left: 10px;
-        text-align: center;
-      }
-
-      .output-area {
-        background-color: rgba(20, 20, 35, 0.8);
-        border-radius: 8px;
-        padding: 15px;
-        min-height: 300px;
-        max-height: 400px;
-        overflow-y: auto;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        margin-bottom: 20px;
-      }
-
-      .password-item {
-        padding: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        font-family: "Courier New", monospace;
-        font-size: 0.95rem;
-        word-break: break-all;
-      }
-
-      .password-item:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.02);
-      }
-
-      .stats {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .stat-box {
-        background-color: rgba(67, 97, 238, 0.1);
-        padding: 12px 18px;
-        border-radius: 8px;
-        text-align: center;
-        flex: 1;
-        min-width: 120px;
-      }
-
-      .stat-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #4cc9f0;
-      }
-
-      .stat-label {
-        font-size: 0.9rem;
-        color: #a0a0c0;
-      }
-
-      .save-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-
-      .save-btn {
-        background: linear-gradient(to right, #2ecc71, #27ae60);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        font-size: 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-
-      .save-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
-      }
-
-      .save-btn i {
-        margin-right: 10px;
-      }
-
-      .file-name {
-        flex: 1;
-        min-width: 200px;
-      }
-
-      footer {
-        text-align: center;
-        padding: 30px 0;
-        color: #8080a0;
-        font-size: 0.9rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 30px;
-      }
-
-      .loading {
-        display: none;
-        text-align: center;
-        padding: 20px;
-        color: #4cc9f0;
-      }
-
-      .loading i {
-        font-size: 2rem;
-        margin-bottom: 10px;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .fa-spinner {
-        animation: spin 1s linear infinite;
-      }
-
-      .character-length {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-      }
-
-      .range-container {
-        flex: 1;
-        margin-right: 20px;
-      }
-
-      input[type="range"] {
-        width: 100%;
-        height: 8px;
-        -webkit-appearance: none;
-        background: rgba(20, 20, 35, 0.8);
-        border-radius: 4px;
-        outline: none;
-      }
-
-      input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #4361ee;
-        cursor: pointer;
-      }
-
-      .length-value {
-        font-weight: bold;
-        color: #4cc9f0;
-        font-size: 1.2rem;
-        min-width: 30px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <nav style="background: rgba(0,0,0,0.5); padding: 15px; text-align: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-        <a href="index.html" style="color: #4cc9f0; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #4361ee;">Names/Password Generate</a>
-        <span style="color: #666;">|</span>
-        <a href="wordlist.html" style="color: #b0b0d0; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 1.1rem; transition: color 0.3s;">Number/Symbol</a>
-      </nav>
-      <header>
-        <h1><i class="fas fa-key"></i> Advanced Password Generator</h1>
-        <p class="subtitle">
-          Create strong, customized passwords using names, numbers, and symbols.
-          This tool is for ethical security testing and educational purposes
-          only.
-        </p>
-
-        <div class="ethics-note">
-          <i class="fas fa-shield-alt"></i>
-          <strong>Ethical Use Agreement:</strong> This tool is intended for
-          legitimate security testing, password recovery of your own accounts,
-          and educational purposes only. Never use it to compromise systems or
-          accounts you don't own or have explicit permission to test.
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="container header-inner">
+      <a href="index.html" class="header-brand">
+        <div class="header-logo-icon">
+          <img src="assets/favicon.svg" alt="CyberPass Suite Logo" width="36" height="36" />
         </div>
-      </header>
+        <div class="header-title-group">
+          <span class="header-title">
+            CYBERPASS <span class="text-cyan">MATRIX</span>
+            <span class="pulse-dot pulse-cyan" title="Operational"></span>
+          </span>
+          <span class="header-tagline">Cryptographic Security Suite</span>
+        </div>
+      </a>
 
-      <div class="content-wrapper">
-        <section class="input-section">
-          <h2 class="section-title">
-            <i class="fas fa-edit"></i> Input Parameters
-          </h2>
+      <div class="header-actions">
+        <span class="badge badge-cyan d-none d-md-flex" style="display: inline-flex;">
+          <i class="fa-solid fa-shield-halved"></i> Ethical Testing Only
+        </span>
+        <button id="btn-open-history" class="btn btn-secondary btn-sm" aria-label="Open Password History">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>History</span>
+          <span id="history-count-badge" class="badge badge-pill badge-cyan">0</span>
+        </button>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm btn-icon" title="View Source on GitHub">
+          <i class="fa-brands fa-github"></i>
+        </a>
+      </div>
+    </div>
+  </header>
 
-          <div class="input-group">
-            <label for="names"
-              ><i class="fas fa-user"></i> Names (one per line)</label
-            >
-            <textarea
-              id="names"
-              placeholder="Enter names like: john, alice, smith, doe"
-            >
-Ali
-Ahmed
-Muhammad
-Hassan
-Hussain
-Bilal
-Omar
-Usman
-Farhan
-Rizwan
-Saad
-Zain
-Haris
-Abdullah
-Hamza
-Asad
-Faisal
-Kamran
-Shahid
-Javed
-Tariq
-Nasir
-Salman
-Imran
-Waseem
-Ayesha
-Fatima
-Mariam
-Zainab
-Sana
-Hina
-Aisha
-Rabia
-Sara
-Aliya
-Nida
-Maham
-Sadia
-Amina
-Kiran
-Shazia
-Samina
-Nadia
-Saima
-Bushra
-Farah
-Anum
-Sobia
-Gul</textarea
-            >
-            <div class="hint">
-              These will be used as base words for password generation
+  <!-- Main Content Layout -->
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <!-- Hero Display for Single Active Password -->
+    <section class="password-hero glow-cyan cyber-corners" style="margin-bottom: 2rem;" aria-label="Primary Password Output">
+      <div style="overflow: hidden; min-width: 0; width: 100%;">
+        <div class="text-xs text-muted" style="text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+          <i class="fa-solid fa-terminal text-cyan"></i> Active Password Output
+        </div>
+        <div class="password-display-text" id="hero-password">Initializing CSPRNG entropy...</div>
+      </div>
+      <div class="password-hero-actions">
+        <button id="btn-hero-copy" class="btn btn-primary" title="Copy to clipboard">
+          <i class="fa-regular fa-copy"></i>
+          <span>Copy</span>
+        </button>
+        <button id="btn-hero-regenerate" class="btn btn-secondary btn-icon" title="Regenerate password">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Navigation Tab Bar -->
+    <nav class="tabs-nav-wrapper" aria-label="Generator Modes Navigation">
+      <div class="tabs-nav" role="tablist">
+        <button id="tab-csprng" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-csprng">
+          <i class="fa-solid fa-dice-d20 text-cyan"></i>
+          <span>CSPRNG Random</span>
+          <span class="tab-badge">Crypto</span>
+        </button>
+        <button id="tab-targeted" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-targeted">
+          <i class="fa-solid fa-crosshairs text-green"></i>
+          <span>Targeted Wordlist</span>
+          <span class="tab-badge">Intelligence</span>
+        </button>
+        <button id="tab-passphrase" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-passphrase">
+          <i class="fa-solid fa-key text-purple"></i>
+          <span>Diceware Passphrase</span>
+          <span class="tab-badge">Memorable</span>
+        </button>
+        <button id="tab-wordlist" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-wordlist">
+          <i class="fa-solid fa-bolt text-amber"></i>
+          <span>Matrix Engine</span>
+          <span class="tab-badge">Web Worker</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Dashboard Grid Layout -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Generator Configuration Panels -->
+      <section class="generator-workspace" aria-label="Generator Configuration">
+
+        <!-- =============================================================== -->
+        <!-- MODE 1: CSPRNG RANDOM GENERATOR PANEL                           -->
+        <!-- =============================================================== -->
+        <div id="panel-csprng" class="tab-panel card glass-panel cyber-corners" role="tabpanel" aria-labelledby="tab-csprng">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-shield-cat text-cyan"></i> Cryptographic CSPRNG Generator
+              </h2>
+              <p class="card-subtitle">Zero-bias rejection sampling via Web Crypto API (crypto.getRandomValues)</p>
             </div>
+            <span class="badge badge-cyan">CSPRNG</span>
           </div>
 
-          <div class="input-group">
-            <label for="numbers"
-              ><i class="fas fa-hashtag"></i> Numbers (one per line)</label
-            >
-            <textarea
-              id="numbers"
-              placeholder="Enter numbers like: 123, 2023, 99, 007"
-            >
-123
-456
-789
-2023
-2024
-007
-99
-100
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-50
-100
-500
-1000
-2000
-3000</textarea
-            >
-            <div class="hint">
-              These numbers will be added to password combinations
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label for="symbols"
-              ><i class="fas fa-asterisk"></i> Symbols (one per line or
-              combined)</label
-            >
-            <input
-              type="text"
-              id="symbols"
-              value="! @ # $ % & * ? ~ ^ - _ + ="
-            />
-            <div class="hint">
-              Symbols will be inserted at different positions in passwords
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label for="passwordLength">Password Length Range</label>
-            <div class="character-length">
-              <div class="range-container">
-                <input
-                  type="range"
-                  id="passwordLength"
-                  min="8"
-                  max="15"
-                  value="12"
-                />
+          <div class="card-body">
+            <!-- Length Slider -->
+            <div class="slider-container">
+              <div class="slider-header">
+                <label for="csprng-length" class="slider-label">Password Length</label>
+                <span id="csprng-length-val" class="slider-value">16</span>
               </div>
-              <div class="length-value" id="lengthValue">12</div>
+              <input type="range" id="csprng-length" class="slider" min="4" max="128" value="16" />
             </div>
-            <div class="hint">
-              Passwords will be generated within this length range (8-15
-              characters)
+
+            <!-- Quantity & Character Switches -->
+            <div class="form-group">
+              <label for="csprng-quantity" class="form-label">Batch Quantity</label>
+              <input type="number" id="csprng-quantity" class="input-control text-mono" min="1" max="1000" value="1" />
+              <span class="form-hint">Number of independent passwords to generate (1 - 1,000)</span>
+            </div>
+
+            <div class="grid-2">
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Uppercase (A-Z)</span>
+                  <span class="switch-desc">Include uppercase letters</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="csprng-upper" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Lowercase (a-z)</span>
+                  <span class="switch-desc">Include lowercase letters</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="csprng-lower" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Numbers (0-9)</span>
+                  <span class="switch-desc">Include decimal digits</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="csprng-numbers" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Special Symbols</span>
+                  <span class="switch-desc">!@#$%^&amp;*()_+-=[]{}</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="csprng-symbols" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="switch-item">
+              <div class="switch-label-group">
+                <span class="switch-title">Exclude Ambiguous Lookalikes</span>
+                <span class="switch-desc">Omit easily confused characters (1, l, I, 0, O, o)</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="csprng-no-ambiguous" />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Custom Characters Input -->
+            <div class="form-group">
+              <label for="csprng-custom" class="form-label">Custom Characters (Optional)</label>
+              <input type="text" id="csprng-custom" class="input-control text-mono" placeholder="e.g. #$%_ or specific Unicode tokens" />
+              <span class="form-hint">Additional characters to include into the randomness pool</span>
             </div>
           </div>
 
-          <div class="controls">
-            <div class="limit-control">
-              <label for="limit">Generate up to:</label>
-              <input
-                type="number"
-                id="limit"
-                min="1"
-                max="1000000"
-                value="1000"
-              />
-              <span style="margin-left: 5px">passwords</span>
-            </div>
-
-            <button class="generate-btn" id="generateBtn">
-              <i class="fas fa-bolt"></i> Generate Passwords
+          <div class="card-footer">
+            <span class="text-xs text-muted">
+              <i class="fa-solid fa-lock text-green"></i> Guaranteed character set representation
+            </span>
+            <button id="btn-generate-csprng" class="btn btn-primary btn-lg">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Password
             </button>
           </div>
-        </section>
+        </div>
 
-        <section class="output-section">
-          <h2 class="section-title">
-            <i class="fas fa-lock"></i> Generated Passwords
-          </h2>
+        <!-- =============================================================== -->
+        <!-- MODE 2: TARGETED WORDLIST GENERATOR PANEL                       -->
+        <!-- =============================================================== -->
+        <div id="panel-targeted" class="tab-panel card glass-panel cyber-corners hidden" role="tabpanel" aria-labelledby="tab-targeted" hidden>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-crosshairs text-green"></i> Targeted Wordlist &amp; Pattern Matrix
+              </h2>
+              <p class="card-subtitle">Permutations based on target intelligence, casing, leetspeak &amp; delimiters</p>
+            </div>
+            <span class="badge badge-green">Intelligence</span>
+          </div>
 
-          <div class="stats">
-            <div class="stat-box">
-              <div class="stat-value" id="totalPasswords">0</div>
-              <div class="stat-label">Passwords</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="targeted-words" class="form-label">Target Keywords / Names / Root Words</label>
+              <textarea id="targeted-words" class="textarea-control text-mono" rows="3" placeholder="admin, corporate, target, secret, security"></textarea>
+              <span class="form-hint">Comma or line-separated seed words</span>
             </div>
-            <div class="stat-box">
-              <div class="stat-value" id="avgLength">0</div>
-              <div class="stat-label">Avg Length</div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="targeted-numbers" class="form-label">Years &amp; Numbers</label>
+                <input type="text" id="targeted-numbers" class="input-control text-mono" placeholder="2024, 2025, 123, 007" />
+                <span class="form-hint">Comma-separated numbers or dates</span>
+              </div>
+
+              <div class="form-group">
+                <label for="targeted-symbols" class="form-label">Affix Symbols</label>
+                <input type="text" id="targeted-symbols" class="input-control text-mono" placeholder="!, @, #, $, %" />
+                <span class="form-hint">Comma-separated special characters</span>
+              </div>
             </div>
-            <div class="stat-box">
-              <div class="stat-value" id="genTime">0</div>
-              <div class="stat-label">Time (ms)</div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="targeted-delimiters" class="form-label">Delimiters</label>
+                <input type="text" id="targeted-delimiters" class="input-control text-mono" value="_ . - @ #" />
+                <span class="form-hint">Separators between compound words and affixes</span>
+              </div>
+
+              <div class="form-group">
+                <label for="targeted-casing" class="form-label">Casing Transformation</label>
+                <select id="targeted-casing" class="select-control">
+                  <option value="all" selected>All (lower, UPPER, Title, aLtErNaTe)</option>
+                  <option value="lower">Lowercase only</option>
+                  <option value="upper">Uppercase only</option>
+                  <option value="title">Titlecase only</option>
+                  <option value="alternate">Alternate casing</option>
+                  <option value="original">Preserve original</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Leetspeak</span>
+                  <span class="switch-desc">a→@, e→3, i→1, o→0</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="targeted-leet" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Word Reversal</span>
+                  <span class="switch-desc">target → tegrat</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="targeted-reverse" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Compounds</span>
+                  <span class="switch-desc">Pair distinct words</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="targeted-compounds" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <div class="form-group">
+                <label for="targeted-affixes" class="form-label">Affixes Placement</label>
+                <select id="targeted-affixes" class="select-control">
+                  <option value="both" selected>Prefix &amp; Suffix</option>
+                  <option value="suffix">Suffix only</option>
+                  <option value="prefix">Prefix only</option>
+                  <option value="none">No affixes</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="targeted-min-len" class="form-label">Min Length</label>
+                <input type="number" id="targeted-min-len" class="input-control text-mono" min="0" max="64" value="0" />
+              </div>
+
+              <div class="form-group">
+                <label for="targeted-max-len" class="form-label">Max Length</label>
+                <input type="number" id="targeted-max-len" class="input-control text-mono" min="1" max="128" value="64" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="targeted-limit" class="form-label">Safety Limit (Max Candidates)</label>
+              <input type="number" id="targeted-limit" class="input-control text-mono" min="10" max="50000" value="5000" />
+              <span class="form-hint">Cap on maximum generated permutations</span>
             </div>
           </div>
 
-          <div class="loading" id="loading">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Generating passwords...</p>
-          </div>
-
-          <div class="output-area" id="outputArea">
-            <div class="password-item">
-              Generated passwords will appear here...
-            </div>
-          </div>
-
-          <div class="save-section">
-            <div class="file-name">
-              <label for="fileName"
-                ><i class="fas fa-file"></i> File Name</label
-              >
-              <input
-                type="text"
-                id="fileName"
-                value="generated_passwords.txt"
-              />
-            </div>
-
-            <button class="save-btn" id="saveBtn">
-              <i class="fas fa-download"></i> Save to File
+          <div class="card-footer">
+            <span class="text-xs text-muted">
+              <i class="fa-solid fa-fingerprint text-green"></i> Tailored for authorized credential assessment
+            </span>
+            <button id="btn-generate-targeted" class="btn btn-success btn-lg">
+              <i class="fa-solid fa-bolt"></i> Generate Targeted Wordlist
             </button>
           </div>
-        </section>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- MODE 3: MEMORABLE PASSPHRASE GENERATOR (DICEWARE)               -->
+        <!-- =============================================================== -->
+        <div id="panel-passphrase" class="tab-panel card glass-panel cyber-corners hidden" role="tabpanel" aria-labelledby="tab-passphrase" hidden>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-key text-purple"></i> Memorable Passphrase Generator
+              </h2>
+              <p class="card-subtitle">Diceware-style 2,048 clean dictionary words with 11 bits of entropy per word</p>
+            </div>
+            <span class="badge badge-purple">Diceware</span>
+          </div>
+
+          <div class="card-body">
+            <!-- Word Count Slider -->
+            <div class="slider-container">
+              <div class="slider-header">
+                <label for="passphrase-words" class="slider-label">Word Count (3 to 10)</label>
+                <span id="passphrase-words-val" class="slider-value">5</span>
+              </div>
+              <input type="range" id="passphrase-words" class="slider" min="3" max="10" value="5" />
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="passphrase-separator" class="form-label">Word Separator</label>
+                <select id="passphrase-separator" class="select-control">
+                  <option value="-" selected>Hyphen (-)</option>
+                  <option value=".">Period (.)</option>
+                  <option value="_">Underscore (_)</option>
+                  <option value=" ">Space ( )</option>
+                  <option value="/">Slash (/)</option>
+                  <option value="random-number">Random Digit (0-9)</option>
+                  <option value="random-symbol">Random Symbol (!@#$...)</option>
+                  <option value="none">None (compact)</option>
+                  <option value="custom">Custom Separator...</option>
+                </select>
+                <input type="text" id="passphrase-custom-separator" class="input-control text-mono" placeholder="Custom separator string" style="display: none; margin-top: 0.5rem;" />
+              </div>
+
+              <div class="form-group">
+                <label for="passphrase-casing" class="form-label">Casing Style</label>
+                <select id="passphrase-casing" class="select-control">
+                  <option value="title" selected>Title Case (Correct-Horse)</option>
+                  <option value="lower">lower case (correct-horse)</option>
+                  <option value="upper">UPPER CASE (CORRECT-HORSE)</option>
+                  <option value="random">Random word casing</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="switch-item">
+                <div class="switch-label-group">
+                  <span class="switch-title">Include Random Number</span>
+                  <span class="switch-desc">Injects a digit to boost entropy</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="passphrase-include-number" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label for="passphrase-number-pos" class="form-label">Number Position</label>
+                <select id="passphrase-number-pos" class="select-control">
+                  <option value="random" selected>Random Word (prefix/suffix)</option>
+                  <option value="append">Append to End</option>
+                  <option value="prepend">Prepend to Start</option>
+                  <option value="all">Every Word</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="passphrase-quantity" class="form-label">Batch Quantity</label>
+              <input type="number" id="passphrase-quantity" class="input-control text-mono" min="1" max="1000" value="1" />
+              <span class="form-hint">Number of passphrases to generate (1 - 1,000)</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="text-xs text-muted">
+              <i class="fa-solid fa-brain text-purple"></i> High cryptographic security without sacrificing human memorability
+            </span>
+            <button id="btn-generate-passphrase" class="btn btn-purple btn-lg">
+              <i class="fa-solid fa-key"></i> Generate Passphrase
+            </button>
+          </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- MODE 4: HIGH-SPEED WORDLIST MATRIX (WEB WORKER)                 -->
+        <!-- =============================================================== -->
+        <div id="panel-wordlist" class="tab-panel card glass-panel cyber-corners hidden" role="tabpanel" aria-labelledby="tab-wordlist" hidden>
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-bolt text-amber"></i> High-Speed Wordlist Matrix
+              </h2>
+              <p class="card-subtitle">Non-blocking background Web Worker engine powered by Xoshiro128+ PRNG</p>
+            </div>
+            <span class="badge badge-amber">Matrix Engine</span>
+          </div>
+
+          <div class="card-body">
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="worker-mode" class="form-label">Generation Mode</label>
+                <select id="worker-mode" class="select-control">
+                  <option value="num_sym" selected>Legacy Mode (Numbers + Specials @$#)</option>
+                  <option value="numeric">Pure Numeric (PINs / 0-9)</option>
+                  <option value="alpha_num">Alphanumeric (a-z, A-Z, 0-9)</option>
+                  <option value="all_chars">All Printable ASCII (94 chars)</option>
+                  <option value="custom">Custom Character Matrix...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="worker-count" class="form-label">Total Passwords to Generate</label>
+                <input type="number" id="worker-count" class="input-control text-mono" min="100" max="10000000" step="1000" value="50000" />
+                <span class="form-hint">Scale up to millions without freezing browser</span>
+              </div>
+            </div>
+
+            <div id="worker-custom-chars-group" class="form-group" style="display: none;">
+              <label for="worker-custom-chars" class="form-label">Custom Characters Matrix</label>
+              <input type="text" id="worker-custom-chars" class="input-control text-mono" placeholder="Enter custom alphabet, symbols, or Unicode tokens" />
+              <span class="form-hint">Engine will sample characters strictly from this alphabet</span>
+            </div>
+
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="worker-min-len" class="form-label">Minimum Length</label>
+                <input type="number" id="worker-min-len" class="input-control text-mono" min="1" max="64" value="8" />
+              </div>
+
+              <div class="form-group">
+                <label for="worker-max-len" class="form-label">Maximum Length</label>
+                <input type="number" id="worker-max-len" class="input-control text-mono" min="1" max="64" value="10" />
+              </div>
+            </div>
+
+            <!-- Real-time Progress Bar -->
+            <div class="progress-container" style="margin-top: 0.5rem;">
+              <div style="display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--text-muted);">
+                <span>Generation Progress</span>
+                <span id="worker-progress-val" class="text-mono text-cyan font-bold">0%</span>
+              </div>
+              <div class="progress-track">
+                <div id="worker-progress-bar" class="progress-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Real-time Engine Telemetry Metrics -->
+            <div class="metric-grid">
+              <div class="metric-box">
+                <span class="metric-label">Generated</span>
+                <span id="worker-metric-generated" class="metric-value">0</span>
+                <span class="metric-sub">items</span>
+              </div>
+
+              <div class="metric-box">
+                <span class="metric-label">Speed</span>
+                <span id="worker-metric-speed" class="metric-value text-cyan">0 /s</span>
+                <span class="metric-sub">passwords/sec</span>
+              </div>
+
+              <div class="metric-box">
+                <span class="metric-label">Elapsed</span>
+                <span id="worker-metric-elapsed" class="metric-value">0.00s</span>
+                <span class="metric-sub">active runtime</span>
+              </div>
+
+              <div class="metric-box">
+                <span class="metric-label">Est. Size</span>
+                <span id="worker-metric-size" class="metric-value text-green">0.00 MB</span>
+                <span class="metric-sub">UTF-8 footprint</span>
+              </div>
+            </div>
+
+            <!-- Worker Control Buttons -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
+              <button id="btn-worker-start" class="btn btn-primary" style="flex: 2; min-width: 140px;">
+                <i class="fa-solid fa-play"></i> Start Matrix
+              </button>
+              <button id="btn-worker-pause" class="btn btn-secondary" style="flex: 1;" disabled>
+                <i class="fa-solid fa-pause"></i> Pause
+              </button>
+              <button id="btn-worker-resume" class="btn btn-secondary" style="flex: 1;" disabled>
+                <i class="fa-solid fa-forward-step"></i> Resume
+              </button>
+              <button id="btn-worker-stop" class="btn btn-danger" style="flex: 1;" disabled>
+                <i class="fa-solid fa-stop"></i> Stop
+              </button>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="text-xs text-muted">
+              <i class="fa-solid fa-microchip text-amber"></i> Asynchronous Web Worker thread with graceful in-thread fallback
+            </span>
+            <a href="wordlist.html" class="btn btn-outline btn-sm">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Standalone Mode
+            </a>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Strength Analyzer & Terminal Output -->
+      <section class="analysis-workspace flex flex-col gap-6" aria-label="Security Analysis and Output">
+
+        <!-- Real-Time Password Strength Analyzer -->
+        <div class="card glass-panel cyber-corners">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">
+                <i class="fa-solid fa-chart-line text-cyan"></i> Entropy &amp; Security Meter
+              </h2>
+              <p class="card-subtitle">Real-time Shannon entropy &amp; brute-force crack-time analyzer</p>
+            </div>
+            <span id="strength-score-label" class="badge badge-green">STRONG</span>
+          </div>
+
+          <div class="card-body">
+            <!-- Custom Input for Live Testing -->
+            <div class="form-group">
+              <label for="strength-input" class="form-label">Live Password Audit Input</label>
+              <input type="text" id="strength-input" class="input-control text-mono" placeholder="Type or paste any password to audit..." autocomplete="off" />
+            </div>
+
+            <!-- Strength Bar & Entropy Display -->
+            <div class="strength-meter">
+              <div class="strength-header">
+                <span class="strength-title">Shannon Pool Entropy</span>
+                <span id="strength-entropy" class="text-mono text-cyan font-bold">0.0 bits</span>
+              </div>
+              <div class="strength-bar-track">
+                <div id="strength-meter-bar" class="strength-bar-fill" style="width: 0%; background-color: #ef4444;"></div>
+              </div>
+            </div>
+
+            <!-- Criteria Checklist -->
+            <div>
+              <span class="form-label" style="font-size: var(--text-xs); text-transform: uppercase; color: var(--text-dim);">Criteria &amp; Pattern Deductions</span>
+              <div class="criteria-list">
+                <div id="crit-length" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> 8+ Characters
+                </div>
+                <div id="crit-upper" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> Uppercase
+                </div>
+                <div id="crit-lower" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> Lowercase
+                </div>
+                <div id="crit-numbers" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> Numbers
+                </div>
+                <div id="crit-symbols" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> Symbols
+                </div>
+                <div id="crit-no-repeats" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> No Repeats
+                </div>
+                <div id="crit-no-sequences" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> No Sequences
+                </div>
+                <div id="crit-no-dict" class="criteria-item unmet">
+                  <span class="criteria-icon"></span> No Dictionary
+                </div>
+              </div>
+            </div>
+
+            <!-- Threat Model Crack Times -->
+            <div>
+              <span class="form-label" style="font-size: var(--text-xs); text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem;">Estimated Crack Times (Threat Profiles)</span>
+              <div class="crack-time-grid">
+                <div class="crack-time-card">
+                  <div class="crack-time-scenario">Online Throttled (100/hr)</div>
+                  <div id="crack-online-throttled" class="crack-time-val text-cyan">Instant</div>
+                </div>
+                <div class="crack-time-card">
+                  <div class="crack-time-scenario">Online Fast (1,000/s)</div>
+                  <div id="crack-online-unthrottled" class="crack-time-val text-green">Instant</div>
+                </div>
+                <div class="crack-time-card">
+                  <div class="crack-time-scenario">Offline GPU (10 GH/s)</div>
+                  <div id="crack-offline-gpu" class="crack-time-val text-amber">Instant</div>
+                </div>
+              </div>
+              <div class="crack-time-card" style="margin-top: 0.5rem;">
+                <div class="crack-time-scenario">Cluster / Distributed Hashcat (100 TH/s)</div>
+                <div id="crack-cluster" class="crack-time-val text-red">Instant</div>
+              </div>
+            </div>
+
+            <!-- Feedback Advice -->
+            <div>
+              <span class="form-label" style="font-size: var(--text-xs); text-transform: uppercase; color: var(--text-dim);">Security Audit Hints</span>
+              <ul id="strength-feedback-list" style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.25rem;">
+                <li class="text-xs text-muted"><i class="fa-solid fa-circle-info text-cyan"></i> Generate or type a password to evaluate security posture.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Terminal & Export Controls -->
+        <div class="output-terminal" id="terminal-container">
+          <div class="terminal-header">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div class="terminal-dots">
+                <div class="terminal-dot dot-red"></div>
+                <div class="terminal-dot dot-yellow"></div>
+                <div class="terminal-dot dot-green"></div>
+              </div>
+              <span class="terminal-title">TERMINAL OUTPUT</span>
+              <span id="terminal-count-badge" class="badge badge-cyan" style="font-size: 0.65rem;">0 items</span>
+            </div>
+
+            <div class="terminal-actions">
+              <button id="btn-copy-all" class="btn btn-secondary btn-sm" title="Copy all to clipboard">
+                <i class="fa-regular fa-copy"></i>
+                <span class="d-none d-sm-inline">Copy All</span>
+              </button>
+              <button id="btn-clear-output" class="btn btn-ghost btn-sm" title="Clear terminal">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Scrollable Output Body -->
+          <div id="terminal-content" class="terminal-body">
+            <div class="text-dim text-center py-4" style="padding: 2rem 0;">
+              No passwords generated yet. Select a mode above and click Generate.
+            </div>
+          </div>
+
+          <!-- Terminal Footer with Export Options -->
+          <div class="card-footer" style="background: #0d121c; margin: 0; padding: 0.75rem 1rem;">
+            <span class="text-xs text-muted">
+              <i class="fa-solid fa-file-export text-cyan"></i> Export Options:
+            </span>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btn-download-txt" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-file-lines"></i> TXT
+              </button>
+              <button id="btn-download-json" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-code"></i> JSON
+              </button>
+              <button id="btn-download-csv" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-table"></i> CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Session History Modal -->
+  <div id="history-modal" class="modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-history-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-history-title" class="modal-title">
+          <i class="fa-solid fa-clock-rotate-left text-cyan"></i> Password Session History
+        </h3>
+        <button id="btn-close-history" class="btn btn-ghost btn-sm" aria-label="Close History Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
-      <footer>
-        <p>
-          © 2023 Advanced Password Generator | For Ethical Security Testing &
-          Educational Use Only
+      <div class="modal-body">
+        <p class="text-xs text-muted" style="margin-bottom: 1rem;">
+          History is held strictly in volatile session memory. No data is ever transmitted across the network.
         </p>
-        <p>
-          This tool generates passwords based on user-provided inputs. Always
-          follow responsible disclosure practices.
-        </p>
-      </footer>
+        <div id="history-list">
+          <div class="text-dim text-center py-4">No password history recorded in this session.</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-clear-history" class="btn btn-danger btn-sm">
+          <i class="fa-solid fa-trash-can"></i> Clear History
+        </button>
+      </div>
     </div>
+  </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // DOM elements
-        const namesInput = document.getElementById("names");
-        const numbersInput = document.getElementById("numbers");
-        const symbolsInput = document.getElementById("symbols");
-        const passwordLength = document.getElementById("passwordLength");
-        const lengthValue = document.getElementById("lengthValue");
-        const limitInput = document.getElementById("limit");
-        const generateBtn = document.getElementById("generateBtn");
-        const outputArea = document.getElementById("outputArea");
-        const loading = document.getElementById("loading");
-        const totalPasswords = document.getElementById("totalPasswords");
-        const avgLength = document.getElementById("avgLength");
-        const genTime = document.getElementById("genTime");
-        const fileName = document.getElementById("fileName");
-        const saveBtn = document.getElementById("saveBtn");
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-        // Update length value display
-        passwordLength.addEventListener("input", function () {
-          lengthValue.textContent = this.value;
-        });
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div>
+        <strong>CyberPass Suite</strong> &copy; 2024-2026. Cryptographically secure client-side generation.
+      </div>
+      <div class="footer-disclaimer">
+        Disclaimer: This tool is intended for authorized security audits, penetration testing, educational demonstrations, and defense credential hardening.
+      </div>
+    </div>
+  </footer>
 
-        // Generate passwords when button is clicked
-        generateBtn.addEventListener("click", generatePasswords);
-
-        // Save passwords to file
-        saveBtn.addEventListener("click", saveToFile);
-
-        // Password generation function
-        function generatePasswords() {
-          // Show loading indicator
-          loading.style.display = "block";
-          outputArea.innerHTML = "";
-
-          // Get input values
-          const names = namesInput.value
-            .trim()
-            .split("\n")
-            .map((name) => name.trim())
-            .filter((name) => name.length > 0);
-          const numbers = numbersInput.value
-            .trim()
-            .split("\n")
-            .map((num) => num.trim())
-            .filter((num) => num.length > 0);
-          const symbols = symbolsInput.value
-            .trim()
-            .split(" ")
-            .filter((symbol) => symbol.length > 0);
-          const maxLength = parseInt(passwordLength.value);
-          const limit = parseInt(limitInput.value);
-
-          // Validate inputs
-          if (names.length === 0 || numbers.length === 0) {
-            alert("Please enter at least one name and one number.");
-            loading.style.display = "none";
-            return;
-          }
-
-          if (limit > 1000000) {
-            alert(
-              "Maximum limit is 1,000,000 passwords for performance reasons."
-            );
-            loading.style.display = "none";
-            return;
-          }
-
-          // Start timing
-          const startTime = performance.now();
-
-          // Generate passwords
-          const passwords = new Set();
-          let attempts = 0;
-          const maxAttempts = limit * 10; // Prevent infinite loop
-
-          while (passwords.size < limit && attempts < maxAttempts) {
-            attempts++;
-
-            // Select random name and number
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            const randomNumber =
-              numbers[Math.floor(Math.random() * numbers.length)];
-
-            // Generate password with different combinations
-            let password = generatePasswordCombination(
-              randomName,
-              randomNumber,
-              symbols,
-              maxLength
-            );
-
-            // Only add if password length is between 8 and maxLength
-            if (password.length >= 8 && password.length <= maxLength) {
-              passwords.add(password);
-            }
-
-            // Update UI every 1000 passwords for better UX
-            if (passwords.size % 1000 === 0 || passwords.size === limit) {
-              updateUI(passwords, startTime);
-            }
-          }
-
-          // Final update
-          updateUI(passwords, startTime);
-          loading.style.display = "none";
-        }
-
-        // Generate a single password with variations
-        function generatePasswordCombination(name, number, symbols, maxLength) {
-          // Different combination strategies
-          const strategies = [
-            // Name + Number + Symbol
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              return name + number + symbol;
-            },
-            // Number + Name + Symbol
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              return number + name + symbol;
-            },
-            // Symbol + Name + Number
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              return symbol + name + number;
-            },
-            // Name + Symbol + Number
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              return name + symbol + number;
-            },
-            // Mixed case variations
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              const mixedName =
-                Math.random() > 0.5 ? name.toUpperCase() : name.toLowerCase();
-              return mixedName + number + symbol;
-            },
-            // Reverse name
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              const reversedName = name.split("").reverse().join("");
-              return reversedName + number + symbol;
-            },
-            // Partial name
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              const partialName = name.substring(
-                0,
-                Math.max(3, name.length - 2)
-              );
-              return partialName + number + symbol;
-            },
-            // Multiple symbols
-            () => {
-              if (symbols.length < 2) return name + number;
-              const symbol1 =
-                symbols[Math.floor(Math.random() * symbols.length)];
-              const symbol2 =
-                symbols[Math.floor(Math.random() * symbols.length)];
-              return name + symbol1 + number + symbol2;
-            },
-            // Capitalized variations
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              const capitalizedName =
-                name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-              return capitalizedName + number + symbol;
-            },
-            // Number between name parts
-            () => {
-              const symbol =
-                symbols.length > 0
-                  ? symbols[Math.floor(Math.random() * symbols.length)]
-                  : "";
-              if (name.length > 3) {
-                const midPoint = Math.floor(name.length / 2);
-                return (
-                  name.substring(0, midPoint) +
-                  number +
-                  name.substring(midPoint) +
-                  symbol
-                );
-              }
-              return name + number + symbol;
-            },
-          ];
-
-          // Select a random strategy
-          const strategy =
-            strategies[Math.floor(Math.random() * strategies.length)];
-          let password = strategy();
-
-          // Truncate if too long
-          if (password.length > maxLength) {
-            password = password.substring(0, maxLength);
-          }
-
-          // Ensure we have at least 8 characters
-          if (password.length < 8) {
-            // Add padding if needed
-            const padding = "12345678".substring(0, 8 - password.length);
-            password += padding;
-          }
-
-          return password;
-        }
-
-        // Update UI with generated passwords
-        function updateUI(passwords, startTime) {
-          // Convert Set to Array for display
-          const passwordArray = Array.from(passwords);
-
-          // Update stats
-          totalPasswords.textContent = passwords.size.toLocaleString();
-
-          // Calculate average length
-          const totalLength = passwordArray.reduce(
-            (sum, pwd) => sum + pwd.length,
-            0
-          );
-          avgLength.textContent = (totalLength / passwords.size).toFixed(1);
-
-          // Calculate generation time
-          const endTime = performance.now();
-          genTime.textContent = (endTime - startTime).toFixed(0);
-
-          // Display passwords (limit display to 100 for performance)
-          outputArea.innerHTML = "";
-          const displayCount = Math.min(passwordArray.length, 100);
-
-          for (let i = 0; i < displayCount; i++) {
-            const passwordItem = document.createElement("div");
-            passwordItem.className = "password-item";
-            // FIXED: Show only the password without the numbering prefix
-            passwordItem.textContent = passwordArray[i];
-            outputArea.appendChild(passwordItem);
-          }
-
-          if (passwordArray.length > 100) {
-            const moreItem = document.createElement("div");
-            moreItem.className = "password-item";
-            moreItem.style.color = "#4cc9f0";
-            moreItem.textContent = `... and ${(
-              passwordArray.length - 100
-            ).toLocaleString()} more passwords (saved to file only)`;
-            outputArea.appendChild(moreItem);
-          }
-        }
-
-        // Save passwords to file
-        function saveToFile() {
-          // Get passwords from output area (we need to regenerate or store them)
-          // For simplicity, we'll regenerate with same inputs
-          const names = namesInput.value
-            .trim()
-            .split("\n")
-            .map((name) => name.trim())
-            .filter((name) => name.length > 0);
-          const numbers = numbersInput.value
-            .trim()
-            .split("\n")
-            .map((num) => num.trim())
-            .filter((num) => num.length > 0);
-          const symbols = symbolsInput.value
-            .trim()
-            .split(" ")
-            .filter((symbol) => symbol.length > 0);
-          const maxLength = parseInt(passwordLength.value);
-          const limit = parseInt(limitInput.value);
-
-          if (names.length === 0 || numbers.length === 0) {
-            alert("Please generate passwords first before saving.");
-            return;
-          }
-
-          // Regenerate passwords for saving (same algorithm as before)
-          const passwords = new Set();
-          let attempts = 0;
-          const maxAttempts = limit * 10;
-
-          while (passwords.size < limit && attempts < maxAttempts) {
-            attempts++;
-
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            const randomNumber =
-              numbers[Math.floor(Math.random() * numbers.length)];
-
-            let password = generatePasswordCombination(
-              randomName,
-              randomNumber,
-              symbols,
-              maxLength
-            );
-
-            if (password.length >= 8 && password.length <= maxLength) {
-              passwords.add(password);
-            }
-          }
-
-          // Convert to text
-          const passwordArray = Array.from(passwords);
-          let fileContent = `Advanced Password Generator - Generated Passwords\n`;
-          fileContent += `Generated on: ${new Date().toLocaleString()}\n`;
-          fileContent += `Parameters: ${names.length} names, ${numbers.length} numbers, ${symbols.length} symbols\n`;
-          fileContent += `Password length: 8-${maxLength} characters\n`;
-          fileContent += `Total passwords: ${passwords.size}\n`;
-          fileContent += `\n=== PASSWORDS ===\n\n`;
-
-          // FIXED: Save just the passwords without numbering in the file
-          passwordArray.forEach((password) => {
-            fileContent += `${password}\n`;
-          });
-
-          // Create and download file
-          const blob = new Blob([fileContent], { type: "text/plain" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName.value || "generated_passwords.txt";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-
-          // Show confirmation
-          alert(
-            `Successfully saved ${passwords.size.toLocaleString()} passwords to ${
-              a.download
-            }`
-          );
-        }
-
-        // Generate some example passwords on load
-        generateBtn.click();
-      });
-    </script>
-  </body>
+  <!-- Core Module Scripts -->
+  <script src="js/crypto-gen.js"></script>
+  <script src="js/targeted-gen.js"></script>
+  <script src="js/passphrase-gen.js"></script>
+  <script src="js/strength-meter.js"></script>
+  <script src="js/wordlist-worker.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

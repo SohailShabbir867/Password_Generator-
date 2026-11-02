@@ -213,10 +213,74 @@ function runTests() {
       customChars: '1lI0Oo',
       excludeAmbiguous: true
     });
-  }, /pool/i, 'Empty character pool after filter must throw error');
+  }, /character set|pool/i, 'Empty character pool after filter must throw error');
 
-  // 9. Exposed properties & helper functions
-  console.log('Test 9: Exposed properties & helper functions');
+  // 9. Null & Undefined safety (Review Findings 3 & 4)
+  console.log('Test 9: Null & Undefined safety');
+  // generate(null) and generate(undefined) must work with defaults
+  const fromNull = CryptoPasswordGenerator.generate(null);
+  assert.strictEqual(fromNull.length, 1);
+  assert.strictEqual(fromNull[0].length, 16);
+
+  const fromUndef = CryptoPasswordGenerator.generate(undefined);
+  assert.strictEqual(fromUndef.length, 1);
+  assert.strictEqual(fromUndef[0].length, 16);
+
+  const singleNull = CryptoPasswordGenerator.generateOne(null);
+  assert.strictEqual(typeof singleNull, 'string');
+  assert.strictEqual(singleNull.length, 16);
+
+  // customChars: null or undefined must not throw TypeError
+  const nullCustom = CryptoPasswordGenerator.generate({
+    customChars: null
+  });
+  assert.strictEqual(nullCustom.length, 1);
+  assert.strictEqual(nullCustom[0].length, 16);
+
+  const undefCustom = CryptoPasswordGenerator.generate({
+    customChars: undefined
+  });
+  assert.strictEqual(undefCustom.length, 1);
+  assert.strictEqual(undefCustom[0].length, 16);
+
+  // 10. getRandomInt & shuffleArray resilience (Review Findings 1 & 2)
+  console.log('Test 10: getRandomInt & shuffleArray resilience');
+  // Must default to cryptoObj without throwing
+  const randVal = CryptoPasswordGenerator.getRandomInt(10);
+  assert.ok(randVal >= 0 && randVal < 10, 'getRandomInt without cryptoObj must produce valid integer');
+
+  const shuffled = CryptoPasswordGenerator.shuffleArray([1, 2, 3, 4, 5]);
+  assert.strictEqual(shuffled.length, 5);
+
+  // Guards against NaN, non-number, <= 1
+  assert.strictEqual(CryptoPasswordGenerator.getRandomInt(NaN), 0, 'getRandomInt(NaN) must return 0');
+  assert.strictEqual(CryptoPasswordGenerator.getRandomInt('invalid'), 0, 'getRandomInt(string) must return 0');
+  assert.strictEqual(CryptoPasswordGenerator.getRandomInt(0), 0, 'getRandomInt(0) must return 0');
+  assert.strictEqual(CryptoPasswordGenerator.getRandomInt(1), 0, 'getRandomInt(1) must return 0');
+  assert.strictEqual(CryptoPasswordGenerator.getRandomInt(-5), 0, 'getRandomInt(negative) must return 0');
+
+  // 11. Unicode Surrogate Pair Support (Review Finding 5)
+  console.log('Test 11: Unicode Surrogate Pair Support');
+  const unicodeEmojis = '🔒🚀🛡️🔑';
+  const emojiPasswords = CryptoPasswordGenerator.generate({
+    length: 10,
+    quantity: 5,
+    uppercase: false,
+    lowercase: false,
+    numbers: false,
+    symbols: false,
+    customChars: unicodeEmojis
+  });
+  for (const pw of emojiPasswords) {
+    const codePoints = Array.from(pw);
+    assert.strictEqual(codePoints.length, 10, 'Password must have exactly 10 Unicode code points');
+    for (const cp of codePoints) {
+      assert.ok(unicodeEmojis.includes(cp), `Character ${cp} must be one of the emojis`);
+    }
+  }
+
+  // 12. Exposed properties & helper functions
+  console.log('Test 12: Exposed properties & helper functions');
   assert.ok(CryptoPasswordGenerator.CHARSETS, 'CHARSETS should be exposed');
   assert.strictEqual(typeof CryptoPasswordGenerator.CHARSETS.UPPERCASE, 'string');
   assert.strictEqual(typeof CryptoPasswordGenerator.CHARSETS.LOWERCASE, 'string');
@@ -230,8 +294,8 @@ function runTests() {
     assert.strictEqual(single.length, 12);
   }
 
-  // 10. CSPRNG randomness distribution sanity check
-  console.log('Test 10: CSPRNG randomness distribution sanity check');
+  // 13. CSPRNG randomness distribution sanity check
+  console.log('Test 13: CSPRNG randomness distribution sanity check');
   // Generate 4000 single-char passwords from a 4-char pool and verify uniform spread
   const counts = { A: 0, B: 0, C: 0, D: 0 };
   const samplePass = CryptoPasswordGenerator.generate({
@@ -251,13 +315,13 @@ function runTests() {
     assert.ok(counts[char] > 800 && counts[char] < 1200, `Distribution for ${char} (${counts[char]}) should be roughly uniform`);
   }
 
-  // 11. UTF-8 Cleanliness
-  console.log('Test 11: UTF-8 Cleanliness');
+  // 14. UTF-8 Cleanliness
+  console.log('Test 14: UTF-8 Cleanliness');
   const genBuf = fs.readFileSync(modulePath);
   assert.ok(!(genBuf[0] === 0xFF && genBuf[1] === 0xFE), 'crypto-gen.js must not have UTF-16 BOM');
   assert.ok(!genBuf.includes(0x00), 'crypto-gen.js must not contain null bytes');
 
-  console.log('\nAll CryptoPasswordGenerator tests passed successfully! (11/11 test suites)');
+  console.log('\nAll CryptoPasswordGenerator tests passed successfully! (14/14 test suites)');
 }
 
 runTests();

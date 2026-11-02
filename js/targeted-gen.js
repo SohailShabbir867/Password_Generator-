@@ -451,10 +451,10 @@
               if (allowSuffix && tryAdd(target + d + num + sym)) return finishResult(resultSet, opts);
               // word + sym + delim + num
               if (allowSuffix && tryAdd(target + sym + d + num)) return finishResult(resultSet, opts);
-              // sym + word + delim + num
-              if (tryAdd(sym + target + d + num)) return finishResult(resultSet, opts);
-              // num + delim + word + sym
-              if (tryAdd(num + d + target + sym)) return finishResult(resultSet, opts);
+              // sym + word + delim + num (sandwich: requires both prefix and suffix allowed)
+              if (allowPrefix && allowSuffix && tryAdd(sym + target + d + num)) return finishResult(resultSet, opts);
+              // num + delim + word + sym (sandwich: requires both prefix and suffix allowed)
+              if (allowPrefix && allowSuffix && tryAdd(num + d + target + sym)) return finishResult(resultSet, opts);
               // sym + delim + num + delim + word
               if (allowPrefix && tryAdd(sym + d + num + d + target)) return finishResult(resultSet, opts);
               // num + delim + sym + delim + word
@@ -518,3 +518,4 @@
     module.exports = TargetedGenerator;
   }
 })();
+

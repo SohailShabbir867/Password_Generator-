@@ -198,6 +198,50 @@ function runTests() {
   assert.ok(!noneAffix.includes('user99'), 'None affix does not attach numbers');
   assert.ok(!noneAffix.includes('user#'), 'None affix does not attach symbols');
 
+  // Verify affixes: 'suffix' with BOTH numbers and symbols has zero prefix contamination
+  const suffixCompound = TargetedGenerator.generate({
+    words: ['pass'],
+    numbers: ['123'],
+    symbols: ['!'],
+    delimiters: [''],
+    casing: 'lower',
+    affixes: 'suffix'
+  });
+  assert.ok(suffixCompound.includes('pass123!'), 'Suffix mode should include pass123!');
+  assert.ok(suffixCompound.includes('pass!123'), 'Suffix mode should include pass!123');
+  for (const pw of suffixCompound) {
+    assert.ok(!pw.startsWith('!') && !pw.startsWith('123'),
+      `In suffix-only mode, password "${pw}" must not start with a prefix symbol or number`);
+  }
+
+  // Verify affixes: 'prefix' with BOTH numbers and symbols has zero suffix contamination
+  const prefixCompound = TargetedGenerator.generate({
+    words: ['pass'],
+    numbers: ['123'],
+    symbols: ['!'],
+    delimiters: [''],
+    casing: 'lower',
+    affixes: 'prefix'
+  });
+  assert.ok(prefixCompound.includes('!123pass'), 'Prefix mode should include !123pass');
+  assert.ok(prefixCompound.includes('123!pass'), 'Prefix mode should include 123!pass');
+  for (const pw of prefixCompound) {
+    assert.ok(!pw.endsWith('!') && !pw.endsWith('123'),
+      `In prefix-only mode, password "${pw}" must not end with a suffix symbol or number`);
+  }
+
+  // Verify affixes: 'both' DOES generate sandwich combinations
+  const bothCompound = TargetedGenerator.generate({
+    words: ['pass'],
+    numbers: ['123'],
+    symbols: ['!'],
+    delimiters: [''],
+    casing: 'lower',
+    affixes: 'both'
+  });
+  assert.ok(bothCompound.includes('!pass123'), 'Both mode includes sandwich !pass123');
+  assert.ok(bothCompound.includes('123pass!'), 'Both mode includes sandwich 123pass!');
+
   // Test 10: Length filtering (minLength, maxLength)
   console.log('Test 10: Min and Max length filtering');
   const lenRes = TargetedGenerator.generate({
@@ -272,3 +316,4 @@ function runTests() {
 }
 
 runTests();
+

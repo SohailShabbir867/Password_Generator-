@@ -17,7 +17,7 @@
    * Character sets and constants
    */
   const DIGITS = '0123456789';
-  const NUM_SYM_SPECIALS = ['@', '$', '#'];
+  const NUM_SYM_SPECIALS = Object.freeze(['@', '$', '#']);
   const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
   const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const ALPHA_NUM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -301,7 +301,6 @@
       const mode = payload.mode ? String(payload.mode).toLowerCase() : 'num_sym';
       if (!VALID_MODES.includes(mode)) {
         const err = new Error(`Invalid generation mode: "${mode}". Valid modes: ${VALID_MODES.join(', ')}`);
-        this.postMessage({ type: 'ERROR', payload: { message: err.message } });
         this.state = 'IDLE';
         throw err;
       }
@@ -313,17 +312,15 @@
         const rawCustom = payload.customChars !== undefined ? String(payload.customChars) : '';
         if (rawCustom.length === 0) {
           const err = new Error('customChars cannot be empty when mode is "custom"');
-          this.postMessage({ type: 'ERROR', payload: { message: err.message } });
           this.state = 'IDLE';
-          throw err;
+        throw err;
         }
         // Deduplicate and support Unicode surrogate pairs
         customArr = Array.from(new Set(Array.from(rawCustom)));
         if (customArr.length === 0) {
           const err = new Error('customChars contains no valid characters');
-          this.postMessage({ type: 'ERROR', payload: { message: err.message } });
           this.state = 'IDLE';
-          throw err;
+        throw err;
         }
         isAscii = customArr.every(ch => ch.charCodeAt(0) <= 127);
       }

@@ -71,6 +71,17 @@ function runTests() {
   assert.ok(allCasingRes.includes('TARGET'), 'all casing includes upper');
   assert.ok(allCasingRes.includes('Target'), 'all casing includes title');
 
+  // Exact / original / none casing
+  const exactRes = TargetedGenerator.generate({ words: ['MySecretPassword'], casing: 'exact' });
+  assert.strictEqual(exactRes.length, 1);
+  assert.strictEqual(exactRes[0], 'MySecretPassword', 'exact casing must retain original case only');
+
+  const origRes = TargetedGenerator.generate({ words: ['SpecialKey'], casing: 'original' });
+  assert.strictEqual(origRes[0], 'SpecialKey');
+
+  // Unicode-safe invertCase
+  assert.strictEqual(TargetedGenerator.invertCase('Héllo!123'), 'hÉLLO!123', 'invertCase should safely handle accented Unicode letters');
+
   // Helper function test: applyCasing
   if (typeof TargetedGenerator.applyCasing === 'function') {
     const cased = TargetedGenerator.applyCasing('hello', 'all');
@@ -159,8 +170,18 @@ function runTests() {
   assert.ok(delimRes.includes('admin.2024'), 'Includes delimiter .');
   assert.ok(delimRes.includes('admin-2024'), 'Includes delimiter -');
 
+  // Empty string preservation in custom delimiters
+  const delimPreserve = TargetedGenerator.generate({
+    words: ['alpha'],
+    numbers: ['99'],
+    delimiters: ['', '-'],
+    casing: 'lower'
+  });
+  assert.ok(delimPreserve.includes('alpha99'), 'Should include direct concatenation with preserved empty delimiter');
+  assert.ok(delimPreserve.includes('alpha-99'), 'Should include hyphenated concatenation with hyphen delimiter');
+
   // Test 8: Compound word combinations
-  console.log('Test 8: Compound word combinations');
+  console.log('Test 8: Compound word combinations & distinct pairing');
   const compRes = TargetedGenerator.generate({
     words: ['super', 'man'],
     casing: 'lower',
@@ -168,6 +189,18 @@ function runTests() {
   });
   assert.ok(compRes.includes('superman'), 'Includes superman');
   assert.ok(compRes.includes('mansuper'), 'Includes mansuper');
+  assert.ok(!compRes.includes('supersuper'), 'Should not self-compound super + super');
+
+  // Single base word with casing: 'all' must not self-compound variants of itself
+  const selfCompRes = TargetedGenerator.generate({
+    words: ['john'],
+    includeCompounds: true,
+    casing: 'all'
+  });
+  const hasSelfCompound = selfCompRes.some(p =>
+    p === 'johnjohn' || p === 'Johnjohn' || p === 'johnJOHN' || p === 'JohnJohn' || p === 'john_john'
+  );
+  assert.ok(!hasSelfCompound, 'Must not pair variations of the same root word (no John + JOHN)');
 
   // Test 9: Affix control options
   console.log('Test 9: Affix control (suffix, prefix, none, both)');
@@ -242,6 +275,20 @@ function runTests() {
   assert.ok(bothCompound.includes('!pass123'), 'Both mode includes sandwich !pass123');
   assert.ok(bothCompound.includes('123pass!'), 'Both mode includes sandwich 123pass!');
 
+  // Starvation prevention: Base words + Numbers + Symbols generated BEFORE compound words
+  const starvationTest = TargetedGenerator.generate({
+    words: ['john', 'smith'],
+    numbers: ['2024'],
+    symbols: ['!'],
+    delimiters: [''],
+    casing: 'lower',
+    limit: 25
+  });
+  const hasBaseNumSym = starvationTest.some(p =>
+    (p.startsWith('john') || p.startsWith('smith')) && p.includes('2024') && p.includes('!')
+  );
+  assert.ok(hasBaseNumSym, 'Word + Number + Symbol passwords must appear within moderate limits (no starvation)');
+
   // Test 10: Length filtering (minLength, maxLength)
   console.log('Test 10: Min and Max length filtering');
   const lenRes = TargetedGenerator.generate({
@@ -295,10 +342,11 @@ function runTests() {
   assert.strictEqual(typeof objRes.total, 'number', 'objRes.total must be a number');
   assert.strictEqual(objRes.total, objRes.passwords.length);
 
-  // Default array has .total attached as well
+  // Default array has .total attached as well (non-circular)
   const arrRes = TargetedGenerator.generate({ words: ['test'] });
   assert.ok(Array.isArray(arrRes));
   assert.strictEqual(arrRes.total, arrRes.length);
+  assert.strictEqual(arrRes.passwords, undefined, 'Returned array must not have circular .passwords property');
 
   // Test 14: Combinatorial safety and performance
   console.log('Test 14: Combinatorial safety with heavy word');

@@ -38,22 +38,24 @@
     'title',
     'alternate',
     'inverted',
+    'original',
+    'exact',
+    'none',
     'all'
   ]);
 
   /**
-   * Invert casing of each character in a string
+   * Invert casing of each character in a string using Unicode-safe case checking
    * @param {string} str
    * @returns {string}
    */
   function invertCase(str) {
     if (!str) return '';
     let res = '';
-    for (let i = 0; i < str.length; i++) {
-      const c = str[i];
-      if (c >= 'a' && c <= 'z') {
+    for (const c of str) {
+      if (c === c.toLowerCase() && c !== c.toUpperCase()) {
         res += c.toUpperCase();
-      } else if (c >= 'A' && c <= 'Z') {
+      } else if (c === c.toUpperCase() && c !== c.toLowerCase()) {
         res += c.toLowerCase();
       } else {
         res += c;
@@ -81,9 +83,11 @@
   function toAlternateCase(str, startUpper = false) {
     if (!str) return '';
     let res = '';
-    for (let i = 0; i < str.length; i++) {
+    let i = 0;
+    for (const c of str) {
       const shouldUpper = startUpper ? i % 2 === 0 : i % 2 !== 0;
-      res += shouldUpper ? str[i].toUpperCase() : str[i].toLowerCase();
+      res += shouldUpper ? c.toUpperCase() : c.toLowerCase();
+      i++;
     }
     return res;
   }
@@ -95,23 +99,27 @@
    */
   function reverseString(str) {
     if (!str) return '';
-    return str.split('').reverse().join('');
+    return Array.from(str).reverse().join('');
   }
 
   /**
-   * Normalize an input argument into an array of trimmed, non-empty strings
+   * Normalize an input argument into an array of trimmed strings
    * @param {string|Array<string|number>} input
    * @param {boolean} [splitChars=false] If true and string has no separators, split by characters
+   * @param {boolean} [allowEmptyString=false] If true, keep empty string '' (for delimiters)
    * @returns {Array<string>}
    */
-  function normalizeInput(input, splitChars = false) {
-    if (!input && input !== 0) return [];
+  function normalizeInput(input, splitChars = false, allowEmptyString = false) {
+    if (input === null || input === undefined) return [];
     if (Array.isArray(input)) {
       const result = [];
       for (const item of input) {
         if (item !== null && item !== undefined) {
-          const str = String(item).trim();
-          if (str.length > 0) result.push(str);
+          const str = String(item);
+          const trimmed = str.trim();
+          if (trimmed.length > 0 || (allowEmptyString && str === '')) {
+            result.push(allowEmptyString && str === '' ? '' : trimmed);
+          }
         }
       }
       return result;
@@ -120,16 +128,21 @@
       return [String(input)];
     }
     if (typeof input === 'string') {
+      if (allowEmptyString && input === '') {
+        return [''];
+      }
       const trimmed = input.trim();
-      if (!trimmed) return [];
+      if (!trimmed) {
+        return allowEmptyString && input === '' ? [''] : [];
+      }
       if (/[,\s\r\n]/.test(trimmed)) {
         return trimmed
           .split(/[,\s\r\n]+/)
           .map(s => s.trim())
-          .filter(Boolean);
+          .filter(s => s.length > 0 || allowEmptyString);
       }
       if (splitChars) {
-        return trimmed.split('').filter(s => s.trim().length > 0);
+        return Array.from(trimmed).filter(s => s.trim().length > 0);
       }
       return [trimmed];
     }
@@ -177,6 +190,11 @@
           set.add(inverted);
           if (invertedTitle) set.add(invertedTitle);
           break;
+        case 'original':
+        case 'exact':
+        case 'none':
+          set.add(word);
+          break;
         case 'all':
         default:
           set.add(word);
@@ -206,7 +224,7 @@
     const map = leetMap && typeof leetMap === 'object' ? leetMap : DEFAULT_LEET_MAP;
 
     // Collect positions and their replacement options
-    const chars = word.split('');
+    const chars = Array.from(word);
     const positions = [];
     for (let i = 0; i < chars.length; i++) {
       const c = chars[i].toLowerCase();
@@ -253,7 +271,6 @@
 
     // 4. Cartesian combination if positions are reasonable
     if (positions.length <= 8 && resultSet.size < maxVariants) {
-      // Build options array for each position
       const posOptions = positions.map(pos => [pos.original, ...pos.replacements]);
 
       function backtrack(posIdx, currentChars) {
@@ -278,6 +295,12 @@
 
   /**
    * Main Targeted Wordlist Generator
+   *
+   * Generation Pipeline:
+   * 1. Base cased & leeted words
+   * 2. Base words + Numbers / Symbols / Affixes
+   * 3. Distinct Compound words (Word A + Word B where root index i !== j)
+   * 4. Compound words + Numbers / Symbols / Affixes
    *
    * @param {object} [options={}]
    * @param {string|Array<string>} [options.words] Base target words / names / terms
@@ -305,7 +328,7 @@
     const symbols = normalizeInput(opts.symbols, true);
 
     const delimiters = opts.delimiters !== undefined
-      ? normalizeInput(opts.delimiters)
+      ? normalizeInput(opts.delimiters, false, true)
       : (numbers.length > 0 || symbols.length > 0 ? Array.from(DEFAULT_DELIMITERS) : ['']);
 
     // Ensure empty delimiter is tested if delimiters list is empty
@@ -346,122 +369,146 @@
       return finishResult(resultSet, opts);
     }
 
-    // Step 1: Expand base words with casing
-    const casedWordsSet = new Set();
-    for (const w of rawWords) {
-      const cased = applyCasing(w, casing);
-      for (const cw of cased) {
-        casedWordsSet.add(cw);
-      }
+    // Step 1: Expand base words by root word index to prevent self-compounding
+    const baseWordVariants = []; // Array of Arrays, one entry per root base word
+    const allBaseWords = [];
+    const allBaseWordsSet = new Set();
+
+    for (let k = 0; k < rawWords.length; k++) {
+      const rootWord = rawWords[k];
+      const variantsForWord = new Set();
+
+      const cased = applyCasing(rootWord, casing);
+      for (const cw of cased) variantsForWord.add(cw);
+
       if (includeReversed) {
-        const rev = reverseString(w);
+        const rev = reverseString(rootWord);
         const casedRev = applyCasing(rev, casing);
-        for (const cr of casedRev) {
-          casedWordsSet.add(cr);
-        }
+        for (const cr of casedRev) variantsForWord.add(cr);
       }
-    }
 
-    // Step 2: Expand with Leetspeak if enabled
-    const expandedWords = new Set();
-    for (const w of casedWordsSet) {
-      expandedWords.add(w);
       if (isLeetEnabled) {
-        const leeted = applyLeet(w, leetMap);
-        for (const lw of leeted) {
-          expandedWords.add(lw);
+        const toLeet = Array.from(variantsForWord);
+        for (const vw of toLeet) {
+          const leeted = applyLeet(vw, leetMap);
+          for (const lw of leeted) variantsForWord.add(lw);
+        }
+      }
+
+      const arrVariants = Array.from(variantsForWord);
+      baseWordVariants.push(arrVariants);
+
+      for (const v of arrVariants) {
+        if (!allBaseWordsSet.has(v)) {
+          allBaseWordsSet.add(v);
+          allBaseWords.push(v);
         }
       }
     }
 
-    const wordList = Array.from(expandedWords);
-
-    // Step 3: Add base words themselves
-    for (const w of wordList) {
+    // 1a. Emit base cased & leeted words
+    for (const w of allBaseWords) {
       if (tryAdd(w)) return finishResult(resultSet, opts);
     }
 
-    // Step 4: Compound Words (if 2+ words and enabled)
+    /**
+     * Helper to apply affixes (numbers, symbols, custom affixes) to a target list
+     * @param {Array<string>} targetList
+     * @returns {boolean} true if limit reached
+     */
+    function applyAffixesTo(targetList) {
+      if (customAffixes && customAffixes.length > 0) {
+        for (const target of targetList) {
+          for (const affix of customAffixes) {
+            if (allowSuffix && tryAdd(target + affix)) return true;
+            if (allowPrefix && tryAdd(affix + target)) return true;
+            for (const d of delimList) {
+              if (d && allowSuffix && tryAdd(target + d + affix)) return true;
+              if (d && allowPrefix && tryAdd(affix + d + target)) return true;
+            }
+          }
+        }
+      } else if (affixesMode !== 'none') {
+        // Word + Number
+        for (const target of targetList) {
+          for (const num of numbers) {
+            for (const d of delimList) {
+              if (allowSuffix && tryAdd(target + d + num)) return true;
+              if (allowPrefix && tryAdd(num + d + target)) return true;
+            }
+          }
+        }
+
+        // Word + Symbol
+        for (const target of targetList) {
+          for (const sym of symbols) {
+            for (const d of delimList) {
+              if (allowSuffix && tryAdd(target + d + sym)) return true;
+              if (allowPrefix && tryAdd(sym + d + target)) return true;
+            }
+          }
+        }
+
+        // Word + Number + Symbol (and combinations)
+        for (const target of targetList) {
+          for (const num of numbers) {
+            for (const sym of symbols) {
+              for (const d of delimList) {
+                // word + delim + num + sym
+                if (allowSuffix && tryAdd(target + d + num + sym)) return true;
+                // word + sym + delim + num
+                if (allowSuffix && tryAdd(target + sym + d + num)) return true;
+                // sym + word + delim + num (sandwich: requires both prefix and suffix allowed)
+                if (allowPrefix && allowSuffix && tryAdd(sym + target + d + num)) return true;
+                // num + delim + word + sym (sandwich: requires both prefix and suffix allowed)
+                if (allowPrefix && allowSuffix && tryAdd(num + d + target + sym)) return true;
+                // sym + delim + num + delim + word
+                if (allowPrefix && tryAdd(sym + d + num + d + target)) return true;
+                // num + delim + sym + delim + word
+                if (allowPrefix && tryAdd(num + d + sym + d + target)) return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    // Step 2: Base words + Numbers / Symbols / Affixes (prioritized over compounds)
+    if (applyAffixesTo(allBaseWords)) {
+      return finishResult(resultSet, opts);
+    }
+
+    // Step 3: Distinct Compound Words (Word A + Word B where root index i !== j)
     const compoundWords = [];
-    if (includeCompounds && rawWords.length >= 2) {
-      for (let i = 0; i < wordList.length; i++) {
-        for (let j = 0; j < wordList.length; j++) {
-          if (i === j) continue;
-          const w1 = wordList[i];
-          const w2 = wordList[j];
+    if (includeCompounds && baseWordVariants.length >= 2) {
+      for (let i = 0; i < baseWordVariants.length; i++) {
+        for (let j = 0; j < baseWordVariants.length; j++) {
+          if (i === j) continue; // Only pair distinct root words (no self-compounding)
+          for (const w1 of baseWordVariants[i]) {
+            for (const w2 of baseWordVariants[j]) {
+              // Direct concatenation
+              const direct = w1 + w2;
+              compoundWords.push(direct);
+              if (tryAdd(direct)) return finishResult(resultSet, opts);
 
-          // Direct concatenation
-          const direct = w1 + w2;
-          compoundWords.push(direct);
-          if (tryAdd(direct)) return finishResult(resultSet, opts);
-
-          // With delimiters
-          for (const d of delimList) {
-            if (d === '') continue;
-            const delimited = w1 + d + w2;
-            compoundWords.push(delimited);
-            if (tryAdd(delimited)) return finishResult(resultSet, opts);
+              // Delimited concatenation
+              for (const d of delimList) {
+                if (d === '') continue;
+                const delimited = w1 + d + w2;
+                compoundWords.push(delimited);
+                if (tryAdd(delimited)) return finishResult(resultSet, opts);
+              }
+            }
           }
         }
       }
     }
 
-    // Combine base words and compound words for affix permutations
-    const targets = compoundWords.length > 0 ? wordList.concat(compoundWords) : wordList;
-
-    // Step 5: Affixes & Combinations (Numbers, Symbols, Custom Affixes)
-    if (customAffixes && customAffixes.length > 0) {
-      for (const target of targets) {
-        for (const affix of customAffixes) {
-          if (allowSuffix && tryAdd(target + affix)) return finishResult(resultSet, opts);
-          if (allowPrefix && tryAdd(affix + target)) return finishResult(resultSet, opts);
-          for (const d of delimList) {
-            if (d && allowSuffix && tryAdd(target + d + affix)) return finishResult(resultSet, opts);
-            if (d && allowPrefix && tryAdd(affix + d + target)) return finishResult(resultSet, opts);
-          }
-        }
-      }
-    } else if (affixesMode !== 'none') {
-      // 5a. Word + Number
-      for (const target of targets) {
-        for (const num of numbers) {
-          for (const d of delimList) {
-            if (allowSuffix && tryAdd(target + d + num)) return finishResult(resultSet, opts);
-            if (allowPrefix && tryAdd(num + d + target)) return finishResult(resultSet, opts);
-          }
-        }
-      }
-
-      // 5b. Word + Symbol
-      for (const target of targets) {
-        for (const sym of symbols) {
-          for (const d of delimList) {
-            if (allowSuffix && tryAdd(target + d + sym)) return finishResult(resultSet, opts);
-            if (allowPrefix && tryAdd(sym + d + target)) return finishResult(resultSet, opts);
-          }
-        }
-      }
-
-      // 5c. Word + Number + Symbol (and variants)
-      for (const target of targets) {
-        for (const num of numbers) {
-          for (const sym of symbols) {
-            for (const d of delimList) {
-              // word + delim + num + sym
-              if (allowSuffix && tryAdd(target + d + num + sym)) return finishResult(resultSet, opts);
-              // word + sym + delim + num
-              if (allowSuffix && tryAdd(target + sym + d + num)) return finishResult(resultSet, opts);
-              // sym + word + delim + num (sandwich: requires both prefix and suffix allowed)
-              if (allowPrefix && allowSuffix && tryAdd(sym + target + d + num)) return finishResult(resultSet, opts);
-              // num + delim + word + sym (sandwich: requires both prefix and suffix allowed)
-              if (allowPrefix && allowSuffix && tryAdd(num + d + target + sym)) return finishResult(resultSet, opts);
-              // sym + delim + num + delim + word
-              if (allowPrefix && tryAdd(sym + d + num + d + target)) return finishResult(resultSet, opts);
-              // num + delim + sym + delim + word
-              if (allowPrefix && tryAdd(num + d + sym + d + target)) return finishResult(resultSet, opts);
-            }
-          }
-        }
+    // Step 4: Compound Words + Numbers / Symbols / Affixes
+    if (compoundWords.length > 0) {
+      if (applyAffixesTo(compoundWords)) {
+        return finishResult(resultSet, opts);
       }
     }
 
@@ -479,9 +526,8 @@
       return resultSet;
     }
     const arr = Array.from(resultSet);
-    // Attach total and passwords properties for convenience & backward compatibility
+    // Attach total count for convenience (non-circular)
     arr.total = arr.length;
-    arr.passwords = arr;
 
     if (opts.returnObject || opts.details) {
       return {
@@ -518,4 +564,3 @@
     module.exports = TargetedGenerator;
   }
 })();
-

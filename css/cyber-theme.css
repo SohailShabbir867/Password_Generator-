@@ -1,0 +1,313 @@
+/* ==========================================================================
+   PASSWORD & WORDLIST GENERATOR SUITE - DESIGN SYSTEM
+   File: css/cyber-theme.css
+   Description: Glassmorphism, neon accents, cyber grid, corner brackets,
+                animated borders, custom dark scrollbars & keyframes
+   ========================================================================== */
+
+/* --- 1. CYBER BACKGROUND & AMBIENT GLOW --- */
+.cyber-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+}
+
+/* Subtle scanlines effect (optional high-tech overlay) */
+.scanlines::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+  background-size: 100% 4px;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* --- 2. GLASSMORPHISM PANELS --- */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-elevated {
+  background: rgba(22, 31, 48, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(0, 240, 255, 0.1);
+}
+
+/* --- 3. NEON GLOWS & ACCENTS --- */
+.glow-cyan {
+  box-shadow: 0 0 20px var(--accent-cyan-glow);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px var(--accent-green-glow);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px var(--accent-purple-glow);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px var(--accent-amber-glow);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px var(--accent-red-glow);
+}
+
+/* Neon Text */
+.neon-text-cyan {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.65), 0 0 20px rgba(0, 240, 255, 0.35);
+}
+
+.neon-text-green {
+  color: var(--accent-green);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.65), 0 0 20px rgba(16, 185, 129, 0.35);
+}
+
+.neon-text-purple {
+  color: var(--accent-purple);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.65), 0 0 20px rgba(139, 92, 246, 0.35);
+}
+
+/* --- 4. TACTICAL CYBER CORNER BRACKETS (.cyber-corners) --- */
+.cyber-corners {
+  position: relative;
+}
+
+.cyber-corners::before,
+.cyber-corners::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  transition: all var(--transition-fast);
+}
+
+.cyber-corners::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--accent-cyan);
+  border-left: 2px solid var(--accent-cyan);
+}
+
+.cyber-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--accent-cyan);
+  border-right: 2px solid var(--accent-cyan);
+}
+
+.cyber-corners:hover::before,
+.cyber-corners:hover::after {
+  width: 16px;
+  height: 16px;
+  border-color: var(--accent-cyan-hover);
+  box-shadow: 0 0 8px var(--accent-cyan-glow);
+}
+
+/* --- 5. ANIMATED GRADIENT BORDERS --- */
+.cyber-border-gradient {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  z-index: 1;
+}
+
+.cyber-border-gradient::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius-md) + 1px);
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-green), var(--accent-cyan));
+  background-size: 300% 300%;
+  animation: border-gradient-shift 8s ease infinite;
+  z-index: -1;
+  opacity: 0.55;
+  transition: opacity var(--transition-normal);
+}
+
+.cyber-border-gradient:hover::before {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+}
+
+/* Shimmer Bar */
+.shimmer-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: shimmer 2.5s infinite;
+}
+
+/* --- 6. CUSTOM DARK CYBER SCROLLBARS --- */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 240, 255, 0.35) #0c121e;
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090e18;
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2c45;
+  border-radius: var(--radius-full);
+  border: 2px solid #090e18;
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+/* Terminal specific scrollbar */
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+  background: #05070c;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+  background: #1b263b;
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}
+
+/* --- 7. KEYFRAME ANIMATIONS --- */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes border-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* --- 8. ACCESSIBILITY OVERRIDES --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .pulse-dot {
+    animation: none !important;
+  }
+
+  .cyber-border-gradient::before {
+    animation: none !important;
+  }
+}

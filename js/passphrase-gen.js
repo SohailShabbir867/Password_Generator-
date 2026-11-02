@@ -129,7 +129,7 @@
   "backed",
   "backing",
   "backlog",
-  "badass",
+  "badger",
   "badland",
   "badness",
   "bagel",
@@ -2127,7 +2127,7 @@
     }
     if (maxExclusive === 1) return 0;
 
-    const maxUint32 = 0xFFFFFFFF;
+    const maxUint32 = 0x100000000;
     const limit = maxUint32 - (maxUint32 % maxExclusive);
     const buffer = new Uint32Array(1);
 
